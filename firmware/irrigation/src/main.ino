@@ -146,7 +146,6 @@ void readAndPublishSensors() {
   doc["water"] = waterLevel;
   doc["temp"] = temp;
   doc["hum"] = hum;
-  doc["timestamp"] = millis();
 
   char buffer[256];
   serializeJson(doc, buffer);
