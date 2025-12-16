@@ -233,7 +233,7 @@ void readAndPublishSensors() {
   serializeJson(doc, buffer);
   mqttClient.publish(TOPIC_SENSOR_DATA, buffer);
   Serial.println("Published Sensor Data");
-  Serial.println(buffer);
+  Serial.printf("Payload: %s\n", buffer);
 
   // Detect Lỗi 
   bool hasError = false;
@@ -269,10 +269,6 @@ void readAndPublishSensors() {
     mqttClient.publish(TOPIC_ALERT_FAULT, errBuffer);
     Serial.printf("FAULT DETECTED on %d sensors & SENT: %s\n", error_sensors.size(), errBuffer);
   }
-  
-  // Xóa tài liệu JSON sau khi gửi (hoặc để PIO tự quản lý nếu khai báo local)
-  errDoc.clear();
-
 }
 
 void setup() {
