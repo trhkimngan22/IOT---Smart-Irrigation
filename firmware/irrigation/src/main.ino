@@ -5,11 +5,18 @@
 #include "config.h"
 #include "DHT.h"           // Thư viện DHT sensor
 #include <Adafruit_Sensor.h> // Thư viện Adafruit Sensor (DHT cần)
+#include <LiquidCrystal_I2C.h>
 
 // Định nghĩa chân cắm
 #define DHTPIN 16           
 #define DHTTYPE DHT22       
 DHT dht(DHTPIN, DHTTYPE);
+
+// Khai báo LCD 
+LiquidCrystal_I2C lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
+
+bool isLcdBacklightOn = false; 
+#define MAX_DISTANCE_CM 50
 
 // --- 4. Ngưỡng tiêu chuẩn ---
 int auto_soil_min = 30; 
@@ -122,7 +129,8 @@ void reconnect() {
   }
 }
 
-float getDistanceCm(){
+// Đọc khoảng cách từ HC-SR04 
+long readDistanceCm() {
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH);
@@ -130,8 +138,61 @@ float getDistanceCm(){
   digitalWrite(TRIG_PIN, LOW);
 
   long duration = pulseIn(ECHO_PIN, HIGH);
-  float distance = duration * 0.034 / 2; 
+  // Sử dụng kiểu long cho duration và float cho tính toán. Chuyển kết quả về long.
+  long distance = (long)(duration * 0.034 / 2); 
   return distance;
+}
+
+// --- Hàm điều khiển và hiển thị LCD (Luồng 4) ---
+void controlAndDisplayLCD() {
+  long distance = readDistanceCm();
+    
+  // 1. Logic Điều khiển Đèn nền (Energy Saving)
+  if (distance <= MAX_DISTANCE_CM) {
+      if (!isLcdBacklightOn) {
+          lcd.backlight(); // BẬT đèn nền
+          isLcdBacklightOn = true;
+          lcd.clear(); // Xóa màn hình khi bật lại
+      }
+  } else {
+      if (isLcdBacklightOn) {
+          lcd.noBacklight(); // TẮT đèn nền
+          isLcdBacklightOn = false;
+      }
+      return; // Dừng hàm, không hiển thị gì khi đèn nền tắt
+  }
+
+  // 2. Hiển thị Dữ liệu trên LCD 20x4 (Khi đèn nền đang BẬT)
+  if (isLcdBacklightOn) {
+        
+      // Hàng 0: Nhiệt độ & Độ ẩm KK
+      lcd.setCursor(0, 0);
+      lcd.print("T:");
+      lcd.print(temp, 1); 
+      lcd.print((char)223); // Ký tự độ (°)
+      lcd.print("C  ");
+        
+      lcd.setCursor(10, 0);
+      lcd.print("H:");
+      lcd.print(hum, 1);
+      lcd.print("%          "); // Dùng space để xóa ký tự cũ
+
+      // Hàng 1: Độ ẩm Đất
+      lcd.setCursor(0, 1);
+      lcd.print("Soil:");
+      lcd.print(soilMoisture);
+      lcd.print("%          ");
+
+      // Hàng 2: Mực nước
+      lcd.setCursor(0, 2);
+      lcd.print("Water:");
+      lcd.print(waterLevel);
+      lcd.print("%          ");
+        
+      // Hàng 3: Trạng thái (Tùy chọn hiển thị)
+      lcd.setCursor(0, 3);
+      lcd.print("Online & OK         "); 
+  }
 }
 
 // --- Hàm giả lập đọc cảm biến & Detect Lỗi ---
@@ -147,7 +208,7 @@ void readAndPublishSensors() {
   soilMoisture = constrain(soilMoisture, 0, 100); 
 
   // Đọc Mực nước 
-  waterLevel = 100 - getDistanceCm(); // waterLevel được tính từ khoảng cách
+  waterLevel = 100 - readDistanceCm(); // Sử dụng hàm readDistanceCm() thay vì getDistanceCm()
 
   // Kiểm tra lỗi đọc DHT trước khi Publish
   if (isnan(temp) || isnan(hum)) {
@@ -223,9 +284,19 @@ void setup() {
   
   dht.begin(); // Khởi tạo cảm biến DHT
 
+  lcd.init(); // Khởi tạo LCD
+  lcd.backlight(); 
+  lcd.print("System Initializing...");
+  lcd.setCursor(0, 1);
+  lcd.print("Connect to WiFi...");
+
   setup_wifi();
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
   mqttClient.setCallback(callback);
+
+  // Tắt đèn nền sau khi khởi động xong
+  lcd.clear();
+  lcd.noBacklight();
 }
 
 void loop() {
@@ -233,6 +304,8 @@ void loop() {
     reconnect();
   }
   mqttClient.loop();
+  
+  controlAndDisplayLCD();
 
   unsigned long now = millis();
   if (now - lastMsgTime > interval) {
