@@ -20,12 +20,12 @@
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
     [ "bb1:4t.b", "bb1:bn.3", "black", [ "v0" ] ],
     [ "bb1:14t.a", "bb1:bn.11", "black", [ "v0" ] ],
-    [ "dht1:VCC", "bb1:bp.2", "red", [ "h20", "v-10" ] ], // DHT VCC -> 3V3 
-    [ "dht1:GND", "bb1:bn.2", "black", [ "h20", "v-10" ] ], // DHT GND -> GND 
-    [ "dht1:SDA", "esp:16", "green", [ "h-30", "v-50" ] ], // DHT SDA -> GPIO 16 
-    [ "pot1:VCC", "bb1:bp.2", "red", [ "h5", "v-5" ] ],     // Pot VCC -> 3V3
-    [ "pot1:GND", "bb1:bn.2", "black", [ "h5", "v-5" ] ],     // Pot GND -> GND
-    [ "pot1:VOUT", "esp:34", "orange", [ "h-50", "v20" ] ], // Pot VOUT -> GPIO 34 (SOIL_PIN)
+    [ "dht1:VCC", "bb1:bp.2", "red", [ "h20", "v-10" ] ], 
+    [ "dht1:GND", "bb1:bn.2", "black", [ "h20", "v-10" ] ], 
+    [ "dht1:SDA", "esp:16", "green", [ "h-30", "v-50" ] ], 
+    [ "pot1:VCC", "bb1:bp.2", "red", [ "h5", "v-5" ] ],     
+    [ "pot1:GND", "bb1:bn.2", "black", [ "h5", "v-5" ] ],     
+    [ "pot1:VOUT", "esp:34", "orange", [ "h-50", "v20" ] ], 
     [ "ultrasonic1:VCC", "bb1:27t.a", "", [ "$bb" ] ],
     [ "ultrasonic1:TRIG", "bb1:28t.a", "", [ "$bb" ] ],
     [ "ultrasonic1:ECHO", "bb1:29t.a", "", [ "$bb" ] ],
