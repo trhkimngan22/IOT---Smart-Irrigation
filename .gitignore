@@ -42,11 +42,11 @@ Desktop.ini
 # nodered_flows
 *.json.backup
 .config.*
-flows_cred.json
-uibuilder/.config/
-uibuilder/common/images/
-uibuilder/home/api/.keep
-uibuilder/home/routes/.keep
+nodered_flows/flows_cred.json
+nodered_flows/uibuilder/.config/
+nodered_flows/uibuilder/common/images/
+nodered_flows/uibuilder/home/api/.keep
+nodered_flows/uibuilder/home/routes/.keep
 
 # Node.js
 node_modules/
