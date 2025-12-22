@@ -57,7 +57,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 
     // Lấy trường 'type' để xác định loại lệnh
-    const char* command_type = doc["type"] | "UNKNOWN";
+    const char* command_type = doc["cmd"] | "UNKNOWN";
 
     // 2. Xử lý lệnh SETTING_CHANGE (Đặt ngưỡng tự động)
     if (strcmp(command_type, "SETTING_CHANGE") == 0) {
@@ -84,7 +84,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         delay(500);                     // Kêu bíp 0.5s
         digitalWrite(BUZZER_PIN, LOW);   // Tắt còi
 
-        delay(duration * 1000); 
+        ///delay(duration * 1000); 
 
         // Tắt Bơm
         // digitalWrite(LED_PIN, LOW);
@@ -140,49 +140,60 @@ void readAndPublishSensors() {
   StaticJsonDocument<200> doc;
   doc["soil"] = soilMoisture;
   doc["water"] = waterLevel;
+  doc["temp"] = temp;
+  doc["hum"] = hum;
 
   char buffer[256];
   serializeJson(doc, buffer);
   mqttClient.publish(TOPIC_SENSOR_DATA, buffer);
-  Serial.println("Published Sensor Data");
+
+  // In dữ liệu sensor ra Serial để kiểm tra
+  Serial.print("SENSOR DATA: ");
+  Serial.println(buffer);
 
   // Detect Lỗi 
-  bool hasError = false;
   StaticJsonDocument<200> errDoc;
-  JsonArray error_sensors = errDoc.createNestedArray("sensors");
-  // Lỗi Nhiệt độ 
-  if (temp > auto_temp_max) {
-    error_sensors.add("temperature_humidity"); 
+  bool hasError = false;
+
+  // ---- Soil Moisture ----
+  if (soilMoisture == 0 || soilMoisture == 100) {
+    errDoc["soil"] = "fault";
+    hasError = true;
+  } else {
+    errDoc["soil"] = "ok";
   }
-  
-  // Lỗi Độ ẩm không khí
-  if (hum < auto_hum_min || hum > 100) {
-    error_sensors.add("temperature_humidity");
+
+  // ---- Water Level ----
+  if (waterLevel < 0) {
+    errDoc["water"] = "fault";
+    hasError = true;
+  } else {
+    errDoc["water"] = "ok";
   }
-  
-  // Lỗi Độ ẩm đất 
-  if (soilMoisture == 0 || soilMoisture == 100) { 
-     error_sensors.add("soil_moisture");
-  }
-  
-  // Lỗi Mực nước
-  if (waterLevel < 0) { 
-     error_sensors.add("water_level");
+
+  // ---- Temperature & Humidity ----
+  if (temp > auto_temp_max || hum < auto_hum_min || hum > 100) {
+    errDoc["temp_hum"] = "fault";
+    hasError = true;
+  } else {
+    errDoc["temp_hum"] = "ok";
   }
 
   // --- 2. Publish nếu có lỗi ---
-  if (error_sensors.size() > 0) {    
-    errDoc["type"] = "SENSOR_FAULT";
-    errDoc["timestamp"] = millis();
+  if (hasError) {
+    //errDoc["timestamp"] = millis();
 
     char errBuffer[256];
     serializeJson(errDoc, errBuffer);
     mqttClient.publish(TOPIC_ALERT_FAULT, errBuffer);
-    Serial.printf("FAULT DETECTED on %d sensors & SENT: %s\n", error_sensors.size(), errBuffer);
+
+    // In trạng thái lỗi ra Serial để kiểm tra
+    Serial.print("FAULT STATUS: ");
+    Serial.println(errBuffer);
   }
   
   // Xóa tài liệu JSON sau khi gửi (hoặc để PIO tự quản lý nếu khai báo local)
-  errDoc.clear();
+  //errDoc.clear();
 
 }
 
