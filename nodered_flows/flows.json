@@ -8,6 +8,14 @@
         "env": []
     },
     {
+        "id": "75d84190d490b888",
+        "type": "tab",
+        "label": "Send email",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "33348ec81cbe324d",
         "type": "ui_base",
         "theme": {
@@ -166,6 +174,109 @@
         "sessionExpiry": ""
     },
     {
+        "id": "8064fe1b72186590",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "4a6acd931f6d76ce",
+        "type": "mongodb4-client",
+        "name": "",
+        "protocol": "mongodb",
+        "hostname": "ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017",
+        "port": "27017",
+        "dbName": "smart_garden",
+        "appName": "",
+        "authSource": "",
+        "authMechanism": "DEFAULT",
+        "tls": false,
+        "tlsCAFile": "",
+        "tlsCertificateKeyFile": "",
+        "tlsInsecure": false,
+        "connectTimeoutMS": "30000",
+        "socketTimeoutMS": "0",
+        "minPoolSize": "0",
+        "maxPoolSize": "100",
+        "maxIdleTimeMS": "0",
+        "uri": "mongodb://admin:123@ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017/smart_garden?ssl=true&authSource=admin&retryWrites=true&w=majority",
+        "advanced": "{}",
+        "uriTabActive": "tab-uri-advanced"
+    },
+    {
+        "id": "9765cc01fb0c5155",
+        "type": "mongodb4-client",
+        "name": "",
+        "protocol": "mongodb",
+        "hostname": "ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017",
+        "port": "27017",
+        "dbName": "smart_garden",
+        "appName": "",
+        "authSource": "",
+        "authMechanism": "DEFAULT",
+        "tls": false,
+        "tlsCAFile": "",
+        "tlsCertificateKeyFile": "",
+        "tlsInsecure": false,
+        "connectTimeoutMS": "30000",
+        "socketTimeoutMS": "0",
+        "minPoolSize": "0",
+        "maxPoolSize": "100",
+        "maxIdleTimeMS": "0",
+        "uri": "mongodb://admin:123@ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017/smart_garden?ssl=true&authSource=admin&retryWrites=true&w=majority",
+        "advanced": "{}",
+        "uriTabActive": "tab-uri-advanced"
+    },
+    {
+        "id": "049eb47969191d77",
+        "type": "mongodb4-client",
+        "name": "",
+        "protocol": "mongodb",
+        "hostname": "mongodb://admin:123@ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017/smart_garden?ssl=true&authSource=admin&retryWrites=true&w=majority",
+        "port": "",
+        "dbName": "history_log",
+        "appName": "",
+        "authSource": "",
+        "authMechanism": "DEFAULT",
+        "tls": false,
+        "tlsCAFile": "",
+        "tlsCertificateKeyFile": "",
+        "tlsInsecure": false,
+        "connectTimeoutMS": "30000",
+        "socketTimeoutMS": "0",
+        "minPoolSize": "0",
+        "maxPoolSize": "100",
+        "maxIdleTimeMS": "0",
+        "uri": "mongodb://admin:123@ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017/smart_garden?ssl=true&authSource=admin&retryWrites=true&w=majority",
+        "advanced": "{}",
+        "uriTabActive": "tab-uri-advanced"
+    },
+    {
         "id": "33b17218fabe43a1",
         "type": "mqtt in",
         "z": "c2bee6c445d2b842",
@@ -178,11 +289,12 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 320,
-        "y": 240,
+        "x": 760,
+        "y": 260,
         "wires": [
             [
-                "be83f6c47f43fa16"
+                "be83f6c47f43fa16",
+                "8cbc16164a2133bd"
             ]
         ]
     },
@@ -199,8 +311,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 330,
-        "y": 300,
+        "x": 770,
+        "y": 320,
         "wires": [
             [
                 "44c04f678daeeaa6"
@@ -219,11 +331,12 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 510,
-        "y": 240,
+        "x": 950,
+        "y": 260,
         "wires": [
             [
-                "a8aa4ef45198b245"
+                "a8aa4ef45198b245",
+                "ac868a10142081ad"
             ]
         ]
     },
@@ -239,8 +352,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 510,
-        "y": 300,
+        "x": 950,
+        "y": 320,
         "wires": [
             [
                 "a8aa4ef45198b245"
@@ -261,8 +374,8 @@
         "correl": "",
         "expiry": "",
         "broker": "8fd88c298088359e",
-        "x": 1220,
-        "y": 240,
+        "x": 1720,
+        "y": 280,
         "wires": []
     },
     {
@@ -270,38 +383,22 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "control_watering_now",
-        "func": "node.warn(msg);\nlet cmd = msg.cmd;\nlet duration_s = msg.duration_s;\n\n// tạo payload cho MQTT\nif (cmd === \"WATERING\") {\n    msg.topic = \"irrigation/control\";  // topic MQTT bạn muốn\n    msg.payload = JSON.stringify({ cmd: \"WATERING\", duration_s: duration_s });\n    return msg;\n}\n\nelse if (cmd === \"SETTING_CHANGE\"){\n    \n}\nreturn null; ",
+        "func": "// KHỞI TẠO BIẾN\nvar mode = flow.get(\"mode\") || \"manual\"; \nvar soilLimit = Number(flow.get(\"soilLimit\")) || 30;\nvar humLimit  = Number(flow.get(\"humLimit\")) || 40;\nvar tempLimit = Number(flow.get(\"tempLimit\")) || 35;\nvar isPumping = flow.get(\"isPumping\") || false;\nvar mqttTopic = \"irrigation/control\"; \n\nvar manualState = flow.get(\"manualState\") || \"OFF\";\nvar lastSensors = flow.get(\"lastSensors\") || null;\nfunction getAutoDecision(s) {\n    if (!s) return \"OFF\"; \n    var curSoil = Number(s.soil);\n    var curHum  = Number(s.hum);\n    var curTemp = Number(s.temp);\n    \n    var needWater = (curSoil < soilLimit);\n    if (curHum < humLimit && curSoil < (soilLimit + 10)) needWater = true;\n    if (curTemp > tempLimit) return \"OFF\";\n\n    if (needWater) return \"ON\";\n    if (!needWater && curSoil > (soilLimit + 5)) return \"OFF\";\n    return \"KEEP\"; \n}\n\n// XỬ LÝ KHI WEB VỪA MỞ \nif (msg.topic === \"get_settings\") {\n    var currentSettings = {\n        soilLimit: soilLimit,\n        humLimit: humLimit,\n        tempLimit: tempLimit,\n        mode: mode\n    };\n    // Gửi về Web qua Cổng 2\n    return [null, { topic: \"current_settings\", payload: currentSettings }];\n}\nif (msg.topic === \"cmd_settings\") {\n    if (msg.payload.soilLimit !== undefined) flow.set(\"soilLimit\", Number(msg.payload.soilLimit));\n    if (msg.payload.humLimit !== undefined) flow.set(\"humLimit\", Number(msg.payload.humLimit));\n    if (msg.payload.tempLimit !== undefined) flow.set(\"tempLimit\", Number(msg.payload.tempLimit));\n    \n    // Hiện thông báo Debug\n    node.warn(`>>> ĐÃ LƯU SETTINGS: Soil ${msg.payload.soilLimit}% | Hum ${msg.payload.humLimit}% | Temp ${msg.payload.tempLimit}°C`);\n    \n    // Gửi xác nhận về Web \n    return [null, { topic: \"settings_saved\", payload: \"OK\" }];\n}\n\n// XỬ LÝ CHUYỂN CHẾ ĐỘ\nif (msg.topic === \"cmd_mode\") {\n    mode = msg.payload;\n    flow.set(\"mode\", mode);\n    var cmdToSend = \"OFF\";\n\n    if (mode === \"manual\") {\n        cmdToSend = flow.get(\"manualState\") || \"OFF\";\n        node.warn(`>> Chuyển Manual -> Khôi phục: ${cmdToSend}`);\n    } else {\n        var s = flow.get(\"lastSensors\");\n        if (s) {\n            var decision = getAutoDecision(s);\n            cmdToSend = (decision === \"KEEP\") ? (isPumping ? \"ON\" : \"OFF\") : decision;\n            node.warn(`>> Chuyển Auto -> Tính toán lại: ${cmdToSend}`);\n        } else {\n            cmdToSend = \"OFF\";\n        }\n    }\n    flow.set(\"isPumping\", (cmdToSend === \"ON\"));\n    return [{ topic: mqttTopic, payload: cmdToSend }, null];\n}\n\n// XỬ LÝ MANUAL\nif (msg.cmd === \"PUMP_ON\" || msg.cmd === \"PUMP_OFF\") {\n    var cmd = (msg.cmd === \"PUMP_ON\") ? \"ON\" : \"OFF\";\n    flow.set(\"manualState\", cmd); \n    if (mode === \"manual\") {\n        flow.set(\"isPumping\", (cmd === \"ON\"));\n        node.warn(\"MANUAL CLICK: \" + cmd);\n        return [{ topic: mqttTopic, payload: cmd }, null];\n    }\n    return null;\n}\n\n// XỬ LÝ AUTO SENSOR \nif (msg.payload && msg.payload.type === \"sensors\") {\n    var s = msg.payload.data;\n    flow.set(\"lastSensors\", s);\n    if (mode === \"manual\") return null;\n\n    var decision = getAutoDecision(s);\n    if (decision === \"ON\" && !isPumping) {\n        flow.set(\"isPumping\", true);\n        node.warn(\"AUTO: BẬT BƠM\");\n        return [{ topic: mqttTopic, payload: \"ON\" }, null];\n    }\n    if (decision === \"OFF\" && isPumping) {\n        flow.set(\"isPumping\", false);\n        node.warn(\"AUTO: TẮT BƠM\");\n        return [{ topic: mqttTopic, payload: \"OFF\" }, null];\n    }\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1000,
-        "y": 260,
+        "x": 1440,
+        "y": 280,
         "wires": [
             [
                 "ee94902f3ec3ce40",
-                "057938371e90b8e3"
+                "3d766b49df972104",
+                "0b9a0de5051b6c4d"
             ]
         ]
-    },
-    {
-        "id": "057938371e90b8e3",
-        "type": "debug",
-        "z": "c2bee6c445d2b842",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1200,
-        "y": 300,
-        "wires": []
     },
     {
         "id": "a8aa4ef45198b245",
@@ -324,14 +421,359 @@
         "showMsgUib": false,
         "title": "",
         "descr": "",
-        "editurl": "",
-        "x": 750,
-        "y": 260,
+        "editurl": "vscode://file/Users/tranhoangkimngan/CQ2022/25-26/HK1-2526/Nhập môn lập trình kết nối vạn vật/Đồ án/IOT---Smart-Irrigation/nodered_flows/uibuilder/home/?windowId=_blank",
+        "x": 1190,
+        "y": 320,
         "wires": [
             [
                 "ac868a10142081ad"
             ],
             []
         ]
+    },
+    {
+        "id": "8cbc16164a2133bd",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Add Timestamp",
+        "func": "// msg.payload {\"soil\": 65, \"water\": 80, \"temp\": 30, \"hum\": 70}\nvar sensor = msg.payload;\nif (typeof sensor === 'string') {\n    sensor = JSON.parse(sensor);\n}\nsensor.timestamp = new Date();\nmsg.orgin_data = sensor;\nmsg.payload = [sensor];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 140,
+        "wires": [
+            [
+                "e517b0101620a602"
+            ]
+        ]
+    },
+    {
+        "id": "e517b0101620a602",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "sensor_data",
+        "operation": "insertOne",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 1260,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9d3d387151532922",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Get data from MongoDB",
+        "func": "// Lấy dữ liệu từ MongoDB\nvar dbData = msg.payload;\nif (!dbData || !Array.isArray(dbData) || dbData.length === 0) {\n    node.warn(\"Chưa có dữ liệu từ Database hoặc định dạng sai!\");\n    return null;\n}\ndbData.sort(function (a, b) {\n    var dateA = new Date(a.timestamp || a.date);\n    var dateB = new Date(b.timestamp || b.date);\n    return dateA - dateB;\n});\n\nvar limitChart = 20; // Lấy 20 điểm\nvar recentData = dbData.slice(-limitChart);\n\nvar chartLabels = [];\nvar chartTemp = [];\nvar chartHum = [];\n\nrecentData.forEach(function (d) {\n    if (!d) return;\n    var dateVal = d.timestamp ? new Date(d.timestamp) : new Date();\n    var timeStr = dateVal.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });\n    var valTemp = d.temp || d.temperature || d.Temp || 0;\n    var valHum = d.hum || d.humidity || d.Hum || 0;\n\n    chartLabels.push(timeStr);\n    chartTemp.push(Number(valTemp)); \n    chartHum.push(Number(valHum));\n});\n\n// XỬ LÝ WATER LEVEL\nvar lastRecord = dbData[dbData.length - 1];\nvar rawWater = lastRecord ? (lastRecord.water || lastRecord.waterLevel || 0) : 0;\nvar maxTankCapacity = 500; \nvar percentLevel = Math.round((Math.abs(Number(rawWater)) / maxTankCapacity) * 100);\nif (percentLevel > 100) percentLevel = 100;\nif (percentLevel < 0) percentLevel = 0;\n\n// XỬ LÝ SOIL\nvar totalSoil = 0;\nvar count = 0;\nrecentData.forEach(function (d) {\n    // Kiểm tra tên biến soil hoặc moisture\n    var valSoil = d.soil || d.moisture || d.soilMoisture;\n    if (valSoil !== undefined) {\n        totalSoil += Number(valSoil);\n        count++;\n    }\n});\nvar avgSoil = count > 0 ? Math.round(totalSoil / count) : 0;\nmsg.payload = {\n    chart: {\n        labels: chartLabels,\n        temp: chartTemp,\n        hum: chartHum\n    },\n    water: percentLevel,\n    soil: avgSoil\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 2,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 480,
+        "wires": [
+            [
+                "a8aa4ef45198b245"
+            ]
+        ]
+    },
+    {
+        "id": "81a159fbb913283d",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Query Function",
+        "func": "// Cấu hình Query cho Node MongoDB\nmsg.payload = {};\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    temp: 1,\n    hum: 1,\n    soil: 1,\n    water: 1,\n    timestamp: 0,\n    _id: 1\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 480,
+        "wires": [
+            [
+                "43380740270db7e3"
+            ]
+        ]
+    },
+    {
+        "id": "666ba504cace3331",
+        "type": "inject",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{},{\"limit\":20, \"sort\":{\"_id\":-1}}]",
+        "payloadType": "str",
+        "x": 310,
+        "y": 480,
+        "wires": [
+            [
+                "81a159fbb913283d"
+            ]
+        ]
+    },
+    {
+        "id": "43380740270db7e3",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "sensor_data",
+        "operation": "find",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 650,
+        "y": 480,
+        "wires": [
+            [
+                "9d3d387151532922"
+            ]
+        ]
+    },
+    {
+        "id": "3d766b49df972104",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "format_history_log",
+        "func": "if (msg.payload !== \"ON\") {\n    return null;\n}\n\n// Lấy chế độ hiện tại (Auto/Manual) để ghi chú\nvar currentMode = flow.get(\"mode\") || \"manual\";\n\n// Tạo bản ghi để lưu vào MongoDB\nmsg.payload = {\n    timestamp: new Date(),      \n    action: \"WATERING START\",  \n    mode: currentMode,         \n    note: \"Pump started\"        \n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1640,
+        "y": 400,
+        "wires": [
+            [
+                "47948fd488787946"
+            ]
+        ]
+    },
+    {
+        "id": "47948fd488787946",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "history_log",
+        "operation": "insertOne",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 1850,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8bde4038f60b568a",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Process history table",
+        "func": "var dbData = msg.payload;\nif (!dbData || !Array.isArray(dbData)) return null;\n// Sắp xếp mới nhất lên đầu\ndbData.sort(function (a, b) {\n    var dateA = new Date(a.timestamp || a.date);\n    var dateB = new Date(b.timestamp || b.date);\n    return dateB - dateA; \n});\n\n// Lấy 10 dòng đầu\nvar last10 = dbData.slice(0, 10).map(function (d) {\n    var dateObj = d.timestamp ? new Date(d.timestamp) : new Date();\n    // Tạo ID ngắn\n    var safeID = d._id ? String(d._id).substring(0, 8).toUpperCase() : \"ID\";\n\n    return {\n        \"ID\": safeID,\n        \"Date\": dateObj.toLocaleDateString('vi-VN'), \n        \"Time\": dateObj.toLocaleTimeString('vi-VN')  \n    };\n});\n\n// Chỉ gửi Table\nmsg.payload = {\n    table: last10\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 2,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 600,
+        "wires": [
+            [
+                "a8aa4ef45198b245"
+            ]
+        ]
+    },
+    {
+        "id": "fafe39f796f7a522",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Query function for history",
+        "func": "// Cấu hình Query cho Node MongoDB\nmsg.payload = {};\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    action: 1,\n    mode: 1,\n    note: 1,\n    timestamp: 1,\n    _id: 1\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 600,
+        "wires": [
+            [
+                "7deb4314905effff"
+            ]
+        ]
+    },
+    {
+        "id": "fc3d4d1a2d2f3f87",
+        "type": "inject",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{},{\"limit\":20, \"sort\":{\"_id\":-1}}]",
+        "payloadType": "str",
+        "x": 290,
+        "y": 600,
+        "wires": [
+            [
+                "fafe39f796f7a522"
+            ]
+        ]
+    },
+    {
+        "id": "7deb4314905effff",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "history_log",
+        "operation": "find",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 670,
+        "y": 600,
+        "wires": [
+            [
+                "8bde4038f60b568a"
+            ]
+        ]
+    },
+    {
+        "id": "0b9a0de5051b6c4d",
+        "type": "debug",
+        "z": "c2bee6c445d2b842",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1630,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "012440536074a702",
+        "type": "mqtt in",
+        "z": "75d84190d490b888",
+        "name": "",
+        "topic": "irrigation/alert",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "8064fe1b72186590",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 370,
+        "y": 260,
+        "wires": [
+            [
+                "819ed67b0db22ed4",
+                "6c41ddde3ce372df"
+            ]
+        ]
+    },
+    {
+        "id": "819ed67b0db22ed4",
+        "type": "function",
+        "z": "75d84190d490b888",
+        "name": "Type email",
+        "func": "// Dữ liệu đầu vào ví dụ: {\"soil\":\"fault\", \"water\":\"ok\", \"temp_hum\":\"ok\"}\nvar status = msg.payload;\nconst sensorNames = {\n    \"water\": \"Mực nước\",\n    \"temp_hum\": \"Nhiệt độ và Độ ẩm\",\n    \"soil\": \"Độ ẩm đất\"\n};\nlet failedSensors = [];\nfor (let key in status) {\n    if (status[key] === \"fault\") {\n        let displayName = sensorNames[key] || key; \n        failedSensors.push(displayName);\n    }\n}\nif (failedSensors.length === 0) {\n    return null;\n}\nmsg.to = \"trhkimngan04@gmail.com\"; \nmsg.topic = \"[CẢNH BÁO] Phát hiện lỗi cảm biến!\";\n// Tạo nội dung thư\nmsg.payload = `Hệ thống tưới cây phát hiện sự cố!\\n` +\n              `----------------------------------------\\n` +\n              `- Các cảm biến bị hỏng: ${failedSensors.join(', ')}\\n` +\n              `- Trạng thái chi tiết: ${JSON.stringify(status)}\\n` +\n              `- Thời gian: ${new Date().toLocaleString('vi-VN')}\\n\\n` +\n              `Vui lòng kiểm tra và bảo trì ngay!`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 260,
+        "wires": [
+            [
+                "04ed5307d6bce50c"
+            ]
+        ]
+    },
+    {
+        "id": "04ed5307d6bce50c",
+        "type": "e-mail",
+        "z": "75d84190d490b888",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "secure": true,
+        "tls": true,
+        "name": "",
+        "dname": "Email",
+        "x": 870,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "6c41ddde3ce372df",
+        "type": "debug",
+        "z": "75d84190d490b888",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 100,
+        "wires": []
     }
 ]

@@ -1,0 +1,58 @@
+body {
+    background-color: #f5f7fa;
+    /* Màu nền xám nhạt */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card-custom {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border: none;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* CSS cho cái vòng tròn % (Donut chart) */
+.circular-chart {
+    display: block;
+    margin: 10px auto;
+    max-width: 80%;
+    max-height: 250px;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 3.8;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    animation: progress 1s ease-out forwards;
+}
+
+.circular-chart.orange .circle {
+    stroke: #d69e2e;
+}
+
+/* Màu vàng đất */
+.percentage {
+    fill: #666;
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: 0.5em;
+    text-anchor: middle;
+}
+
+/* Ẩn Vue khi chưa load xong để đỡ bị nháy */
+[v-cloak] {
+    display: none;
+}

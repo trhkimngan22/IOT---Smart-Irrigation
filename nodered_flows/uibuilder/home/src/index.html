@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Plant Planet - Smart Irrigation</title>
@@ -9,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inder&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
   <!-- HEADER BAR -->
   <header class="navbar">
@@ -39,38 +41,63 @@
           </div>
           <!-- AUTO MODE -->
           <div id="auto-panel">
+          
             <div class="row">
-              <div class="row-content">
-                <span>Soil Moisture</span>
-                <span id="soil-value">--%</span>
+              <div class="row-content" style="align-items: center; justify-content: space-between;">
+                <span style="font-weight: 400; color: #333; font-size: 1.1rem;">Soil Moisture</span>
+                <div style="display: flex; align-items: center;">
+                  <input type="number" v-model.number="settings.soilLimit" min="0" max="100"
+                         style="width: 50px; border: none; border-bottom: 2px solid #333; background: transparent; text-align: center; font-size: 1.1rem; font-family: 'Inder', sans-serif; color: #1e3a8a;">
+                  <span style="margin-left: 5px;">%</span>
+                </div>
               </div>
             </div>
+          
             <div class="row">
-              <div class="row-content">
-                <span>Humidity</span>
-                <span id="hum-value">--%</span>
+              <div class="row-content" style="align-items: center; justify-content: space-between;">
+                <span style="font-weight: 400; color: #333; font-size: 1.1rem;">Humidity</span>
+                <div style="display: flex; align-items: center;">
+                  <input type="number" v-model.number="settings.humLimit" min="0" max="100"
+                         style="width: 50px; border: none; border-bottom: 2px solid #333; background: transparent; text-align: center; font-size: 1.1rem; font-family: 'Inder', sans-serif; color: #1e3a8a;">
+                  <span style="margin-left: 5px;">%</span>
+                </div>
               </div>
             </div>
+          
             <div class="row">
-              <div class="row-content">
-                <span>Temperature</span>
-                <span id="temp-value">--°C</span>
+              <div class="row-content" style="align-items: center; justify-content: space-between;">
+                <span style="font-weight: 400; color: #333; font-size: 1.1rem;">Temperature</span>
+                <div style="display: flex; align-items: center;">
+                  <input type="number" v-model.number="settings.tempLimit" min="0" max="50"
+                         style="width: 50px; border: none; border-bottom: 2px solid #333; background: transparent; text-align: center; font-size: 1.1rem; font-family: 'Inder', sans-serif; color: #1e3a8a;">
+                  <span style="margin-left: 5px;">°C</span>
+                </div>
               </div>
             </div>
-            <button class="primary-btn">Change settings</button>
+          <button class="primary-btn" @click="saveSettings">Change settings</button>
           </div>
           <!-- MANUAL MODE -->
-          <div id="manual-panel" class="hidden">
-            <div class="manual-duration-wrap">
-              <div class="duration-label">Duration</div>
-              <div class="duration-inputs">
-                <input id="duration-min" type="number" min="0" max="59" value="0" class="duration-input" oninput="this.value = Math.max(0, Math.floor(this.value))"/>
-                <span>min</span>
-                <input id="duration-sec" type="number" min="1" max="59" value="10" class="duration-input" oninput="this.value = Math.max(1, Math.floor(this.value))"/>
-                <span>sec</span>
-              </div>
+          <div id="manual-panel" class="hidden control-panel-wrap">
+            <div class="status-indicator mb-4">
+              <span style="color: #666; font-size: 1.1rem;">Status: </span>
+              <span id="manual-status-text" style="font-weight: 600; color: #40916C;">Ready to water</span>
             </div>
-            <button class="primary-btn">Watering now</button>
+
+            <div class="manual-btn-group">
+              <button id="btn-pump-on" class="ctrl-btn start-btn">
+                <span style="font-size: 1.2rem;">▶</span> <span>START</span>
+              </button>
+
+              <button id="btn-pump-off" class="ctrl-btn stop-btn">
+                <span style="font-size: 1.8rem; line-height: 1; margin-top: -4px;">■</span> 
+                <span>STOP</span>
+              </button>
+            </div>
+
+            <p style="color: #999; font-size: 0.9rem; margin-top: 20px;">
+              *Click Start to turn on the pump indefinitely. <br>
+              Remember to Stop it!
+            </p>
           </div>
         </div>
       </section>
@@ -78,10 +105,18 @@
       <section class="sensor-section">
         <h2>Sensor Monitoring</h2>
         <div class="sensor-cards">
-          <div class="sensor-card"><div>Temperature</div><b id="temp-sensor-value">--°C</b></div>
-          <div class="sensor-card"><div>Humidity</div><b id="hum-sensor-value">--%</b></div>
-          <div class="sensor-card"><div>Moisture</div><b id="soil-sensor-value">--%</b></div>
-          <div class="sensor-card"><div>Water Level</div><b id="water-sensor-value">--L</b></div>
+          <div class="sensor-card">
+            <div>Temperature</div><b id="temp-sensor-value">--°C</b>
+          </div>
+          <div class="sensor-card">
+            <div>Humidity</div><b id="hum-sensor-value">--%</b>
+          </div>
+          <div class="sensor-card">
+            <div>Moisture</div><b id="soil-sensor-value">--%</b>
+          </div>
+          <div class="sensor-card">
+            <div>Water Level</div><b id="water-sensor-value">--L</b>
+          </div>
         </div>
         <div class="sensor-icons">
           <div class="sensor-item">
@@ -111,22 +146,23 @@
   </div>
   <script>
     // Điều hướng cho nav
-    document.getElementById('nav-home').onclick = function() {
-      // Đánh dấu active
-      document.getElementById('nav-home').classList.add('active');
-      document.getElementById('nav-dashboard').classList.remove('active');
-      // Chuyển trang nếu chưa ở trang này
-      if (!window.location.pathname.endsWith('index.html')) {
-        window.location.href = "index.html";
-      }
-    };
-    document.getElementById('nav-dashboard').onclick = function() {
-      document.getElementById('nav-dashboard').classList.add('active');
-      document.getElementById('nav-home').classList.remove('active');
-      window.location.href = "dashboard.html";
-    };
+document.getElementById('nav-home').onclick = function() {
+// Đánh dấu active
+document.getElementById('nav-home').classList.add('active');
+document.getElementById('nav-dashboard').classList.remove('active');
+// Chuyển trang nếu chưa ở trang này
+if (!window.location.pathname.endsWith('index.html')) {
+window.location.href = "index.html";
+}
+};
+document.getElementById('nav-dashboard').onclick = function() {
+document.getElementById('nav-dashboard').classList.add('active');
+document.getElementById('nav-home').classList.remove('active');
+window.location.href = "dashboard.html";
+};
   </script>
   <script src="./uibuilder.iife.min.js"></script>
   <script src="./index.js"></script>
 </body>
+
 </html>

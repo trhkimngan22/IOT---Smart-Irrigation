@@ -11,7 +11,7 @@
   "uibuilder": {
     "packages": {}
   },
-  "path": "D:\\SmartIrrigation\\IOT---Smart-Irrigation\\nodered_flows\\uibuilder",
+  "path": "/Users/tranhoangkimngan/CQ2022/25-26/HK1-2526/Nhập môn lập trình kết nối vạn vật/Đồ án/IOT---Smart-Irrigation/nodered_flows/uibuilder",
   "devDependencies": {},
   "peerDependencies": {},
   "_id": "uib_root@7.5.0",

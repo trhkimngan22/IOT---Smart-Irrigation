@@ -1,154 +1,101 @@
-// Give VS Code IntelliSense for uibuilder
 /// <reference path="../types/uibuilder.d.ts" />
-
-/// const { use } = require("react");
-
-/** The simplest use of uibuilder client library
- * See the docs if the client doesn't start on its own.
- */
-
-// Listen for incoming messages from Node-RED and action
-// uibuilder.onChange('msg', (msg) => {
-//     // do stuff with the incoming msg
-// })
-
-///"use strict";
+"use strict";
 
 const btnAuto = document.getElementById("btn-auto");
 const btnManual = document.getElementById("btn-manual");
 const autoPanel = document.getElementById("auto-panel");
 const manualPanel = document.getElementById("manual-panel");
 
+// --- 1. HANDLE MODE SWITCHING ---
 btnAuto.onclick = () => {
-  console.log("Auto mode button clicked");
   btnAuto.classList.add("active");
   btnManual.classList.remove("active");
   autoPanel.classList.remove("hidden");
   manualPanel.classList.add("hidden");
+  uibuilder.send({ topic: "cmd_mode", payload: "auto" });
+  console.log("Switched to AUTO mode");
 };
 
 btnManual.onclick = () => {
-  console.log("Manual mode button clicked");
   btnManual.classList.add("active");
   btnAuto.classList.remove("active");
   manualPanel.classList.remove("hidden");
   autoPanel.classList.add("hidden");
+  uibuilder.send({ topic: "cmd_mode", payload: "manual" });
+  console.log("Switched to MANUAL mode");
 };
 
+// --- 2. START UIBUILDER ---
 document.addEventListener("DOMContentLoaded", () => {
-
-  uibuilder.start({
-          'serverPath': '/home' 
-  });
-
+  uibuilder.start({ 'serverPath': '/home' });
   uibuilder.onChange('msg', msg => {
-    console.log("Received from Node-RED:", msg);
-
     if (!msg || !msg.payload) return;
-
     const { type, data } = msg.payload;
-
-    if (type === "sensors") {
-      updateSensorUI(data);
-    }
-
-    if (type === "alert") {
-      updateStateUI(data);
-    }
+    if (type === "sensors") updateSensorUI(data);
+    if (type === "alert") updateStateUI(data);
   });
-
 });
 
-
-// uibuilder.onChange('msg', msg => {
-//   console.log("UI received:", msg.payload);
-//   if (!msg || !msg.payload) return;
-
-//   // Dữ liệu từ Node-RED sẽ có dạng:
-//   // msg.payload = { type: "sensors", data: { soil, water, temp, hum } }
-//   // hoặc msg.payload = { type: "alert", data: { soil, water, temp_hum } }
-
-//   const { type, data } = msg.payload;
-
-//   if (type === "sensors") {
-//     // Cập nhật UI với dữ liệu cảm biến
-//     // data = { soil, water, temp, hum }
-//     updateSensorUI(data);
-//   }
-
-//   if (type === "alert") {
-//     // Cập nhật trạng thái lỗi cho các cảm biến
-//     // data = { soil, water, temp_hum }
-//     updateStateUI(data);
-//   }
-// });
-
-// Cập nhật chỉ phần sensor monitoring bên phải
+// --- 3. UPDATE UI FUNCTIONS ---
 function updateSensorUI(data) {
-  document.getElementById("soil-sensor-value").innerText = data.soil + "%";
-  document.getElementById("temp-sensor-value").innerText = data.temp + "°C";
-  document.getElementById("hum-sensor-value").innerText = data.hum + "%";
-  document.getElementById("water-sensor-value").innerText = data.water + "L";
+  if(document.getElementById("soil-sensor-value")) document.getElementById("soil-sensor-value").innerText = data.soil + "%";
+  if(document.getElementById("temp-sensor-value")) document.getElementById("temp-sensor-value").innerText = data.temp + "°C";
+  if(document.getElementById("hum-sensor-value")) document.getElementById("hum-sensor-value").innerText = data.hum + "%";
+  if(document.getElementById("water-sensor-value")) document.getElementById("water-sensor-value").innerText = data.water + "L";
 }
 
 function updateStateUI(data) {
-  // data = { soil, water, temp_hum }
-  setStatus("soil", data.soil);
-  setStatus("water", data.water);
-  setStatus("temp_hum", data.temp_hum);
+  setStatus("soil", data.soil); setStatus("water", data.water); setStatus("temp_hum", data.temp_hum);
 }
-
-// function setStatus(sensor, state) {
-//   // sensor: "soil", "water", "temp_hum"
-//   // state: "ok" | "fault"
-//   const dot = document.getElementById(sensor + "-dot");
-//   if (dot) dot.classList.toggle("fault", state === "fault");
-// }
 
 function setStatus(sensor, state) {
   const dot = document.getElementById(sensor + "-dot");
   if (!dot) return;
-
-  // Xóa cả hai class trước khi thêm class mới để đảm bảo chuyển đổi đúng
   dot.classList.remove("normal", "error");
-
-  if (state === "ok") {
-    dot.classList.add("normal");
-  } else if (state === "fault") {
-    dot.classList.add("error");
-  }
+  if (state === "ok") dot.classList.add("normal");
+  else if (state === "fault") dot.classList.add("error");
 }
 
-
-// Gửi lệnh settings/manual watering về Node-RED
+// --- 4. HANDLE SETTINGS ---
 document.querySelectorAll('.primary-btn').forEach(btn => {
   btn.onclick = function (e) {
     if (btn.textContent.includes("Change settings")) {
-      // Ví dụ: lấy giá trị từ input (bạn cần thêm input vào html nếu muốn)
-      // let soil_min = Number(document.getElementById('soil-min-input').value);
-      // let temp_max = Number(document.getElementById('temp-max-input').value);
-      // let hum_min = Number(document.getElementById('hum-min-input').value);
-      // uibuilder.send({
-      //   cmd: "SETTING_CHANGE",
-      //   data: { soil_min, temp_max, hum_min }
-      // });
-      // alert("Settings sent (bạn cần bổ sung input để lấy giá trị thực tế)");
-    } else if (btn.textContent.includes("Watering now")) {
-      const min = Number(document.getElementById('duration-min')?.value || 0);
-      const sec = Number(document.getElementById('duration-sec')?.value || 0);
-      const duration = min * 60 + sec;
-      if (duration > 0 && duration <= 3600) {
-        uibuilder.send({
-          cmd: "WATERING",
-          duration_s: duration
-        });
+      let soilVal = Number(document.getElementById('soil-min-input').value) || 30;
+      let humVal = Number(document.getElementById('hum-min-input').value) || 40;
+      let tempVal = Number(document.getElementById('temp-max-input').value) || 35;
 
-        // in thông điệp gửi đi có dạng: topic, msg
-        console.log("Sent watering command for", duration, "seconds");
-
-      } else {
-        alert("Please enter a valid duration (1-3600 seconds).");
-      }
-    }
+      uibuilder.send({
+        topic: "cmd_settings",
+        payload: { soilLimit: soilVal, humLimit: humVal, tempLimit: tempVal }
+      });
+      alert(`Settings saved:\nSoil Min: ${soilVal}%\nHum Min: ${humVal}%\nTemp Max: ${tempVal}°C`);
+    } 
   };
 });
+
+// --- 5. HANDLE MANUAL PUMP CONTROL (START / STOP) ---
+const btnPumpOn = document.getElementById('btn-pump-on');
+const btnPumpOff = document.getElementById('btn-pump-off');
+const statusText = document.getElementById('manual-status-text');
+
+if (btnPumpOn && btnPumpOff) {
+  // START BUTTON
+  btnPumpOn.onclick = function() {
+    console.log("Sending PUMP_ON command...");
+    uibuilder.send({ cmd: "PUMP_ON" });
+    if (statusText) {
+        statusText.innerText = "Watering...";
+        statusText.style.color = "#2ecc71";
+    }
+  };
+
+  // STOP BUTTON
+  btnPumpOff.onclick = function() {
+    console.log("Sending PUMP_OFF command...");
+    uibuilder.send({ cmd: "PUMP_OFF" });
+    if (statusText) {
+        statusText.innerText = "Stopped";
+        statusText.style.color = "#666";
+    }
+  };
+}
