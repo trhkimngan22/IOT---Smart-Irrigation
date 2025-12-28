@@ -6,15 +6,14 @@
 #include <Adafruit_Sensor.h> 
 #include <LiquidCrystal_I2C.h>
 
-// --- 1. Cấu hình WiFi & MQTT ---
+// --- Cấu hình WiFi & MQTT ---
 const char* WIFI_SSID = "Wokwi-GUEST";
 const char* WIFI_PASS = "";
 
 const char* MQTT_SERVER = "broker.hivemq.com";
 const int MQTT_PORT = 1883;
 
-// --- 2. Định nghĩa Chân (PIN) cho ESP8266 ---
-// Lưu ý sau: Wokwi dùng ESP32 thì giữ nguyên số, ESP8266 thì D1, D2...
+// --- Định nghĩa Chân (PIN) cho ESP8266 ---
 #define BUZZER_PIN  15 
 #define SOIL_PIN    32  
 #define WATER_PIN 34
@@ -27,8 +26,8 @@ const int MQTT_PORT = 1883;
 #define LCD_COLS 20     
 #define LCD_ROWS 4      
 #define MAX_DISTANCE_CM 50 // Ngưỡng khoảng cách (nếu có người đến gần 50cm, màn hình bật)
-// --- 3. MQTT Topics (Nên gom nhóm) ---
-// Thay 22120421 bằng ID của bạn
+
+// --- Định nghĩa MQTT Topics ---
 #define TOPIC_SENSOR_DATA   "irrigation/sensors"   // Gửi data (Độ ẩm, nước, nhiệt độ...)
 #define TOPIC_CONTROL_PUMP  "irrigation/control"   // Nhận lệnh tưới
 #define TOPIC_ALERT_FAULT   "irrigation/alert"     // Gửi báo lỗi cảm biến
@@ -37,7 +36,7 @@ LiquidCrystal_I2C lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
 
 bool isLcdBacklightOn = false; 
 
-// --- 2. Ngưỡng tiêu chuẩn ---
+// --- Ngưỡng tiêu chuẩn ---
 int auto_soil_min = 30; 
 int auto_temp_max = 80;     
 int auto_hum_min = 0;       
@@ -54,8 +53,6 @@ float temp = 0;
 float hum = 0;
 
 DynamicJsonDocument doc(512);
-
-// --- 3. Các hàm chức năng ---
 
 void setup_wifi() {
   delay(10);
@@ -167,51 +164,6 @@ void readAndPublishSensors() {
   // In dữ liệu sensor ra Serial để kiểm tra
   Serial.print("SENSOR DATA: ");
   Serial.println(buffer);
-
-  // Detect Lỗi 
-  StaticJsonDocument<200> errDoc;
-  bool hasError = false;
-
-  // ---- Soil Moisture ----
-  if (soilMoisture == 0 || soilMoisture == 100) {
-    errDoc["soil"] = "fault";
-    hasError = true;
-  } else {
-    errDoc["soil"] = "ok";
-  }
-
-  // ---- Water Level ----
-  if (waterLevel < 0) {
-    errDoc["water"] = "fault";
-    hasError = true;
-  } else {
-    errDoc["water"] = "ok";
-  }
-
-  // ---- Temperature & Humidity ----
-  if (temp > auto_temp_max || hum < auto_hum_min || hum > 100) {
-    errDoc["temp_hum"] = "fault";
-    hasError = true;
-  } else {
-    errDoc["temp_hum"] = "ok";
-  }
-
-  // --- 2. Publish nếu có lỗi ---
-  if (hasError) {
-    //errDoc["timestamp"] = millis();
-
-    char errBuffer[256];
-    serializeJson(errDoc, errBuffer);
-    mqttClient.publish(TOPIC_ALERT_FAULT, errBuffer);
-
-    // In trạng thái lỗi ra Serial để kiểm tra
-    Serial.print("FAULT STATUS: ");
-    Serial.println(errBuffer);
-  }
-  
-  // Xóa tài liệu JSON sau khi gửi (hoặc để PIO tự quản lý nếu khai báo local)
-  //errDoc.clear();
-
 }
 
 // --- 4. Setup & Loop ---
@@ -235,6 +187,9 @@ void setup() {
   
   lcd.clear();
   lcd.noBacklight();
+  // resolver.AddUnidirectionalSequenceLSTM(); 
+  // resolver.AddFullyConnected();
+  // resolver.AddReshape();
 }
 
 void loop() {

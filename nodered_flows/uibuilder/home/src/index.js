@@ -129,7 +129,9 @@ function updateSensorUI(data) {
 }
 
 function updateStateUI(data) {
-  setStatus("soil", data.soil); setStatus("water", data.water); setStatus("temp_hum", data.temp_hum);
+  setStatus("air", data.air);
+  setStatus("soil", data.soil);
+  setStatus("water", data.water);
 }
 
 function setStatus(sensor, state) {
