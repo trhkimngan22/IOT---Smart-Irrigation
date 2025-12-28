@@ -17,6 +17,8 @@ env/
 venv/
 .venv/
 .env
+/be_ml/.gradio/
+/be_ml/sensor_env/
 
 # VS Code 
 .vscode/
