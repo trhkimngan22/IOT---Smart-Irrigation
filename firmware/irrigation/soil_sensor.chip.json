@@ -17,7 +17,7 @@
       "label": "Soil Moisture",
       "type": "range",
       "min": 0,
-      "max": 100,
+      "max": 1023,
       "step": 1
     }
   ]

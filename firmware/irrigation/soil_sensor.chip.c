@@ -11,14 +11,14 @@ void chip_timer_callback(void *data)
 {
   chip_data_t *chip_data = (chip_data_t*)data;
   float moisture = attr_read(chip_data->moisture);
-  float volts = 5 * (moisture / 4096.0);
+  float volts = 5 * (moisture / 1023.0); // Convert analog input to voltage
   pin_dac_write(chip_data->pin, volts);
 }
 
 void chip_init() 
 {
   chip_data_t *chip_data = (chip_data_t*)malloc(sizeof(chip_data_t));
-  chip_data->moisture = attr_init("moisture", 2910.0);
+  chip_data->moisture = attr_init("moisture", 512.0);  // Default value
   chip_data->pin = pin_init("A0", ANALOG);
 
   const timer_config_t config = 

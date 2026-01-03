@@ -47,8 +47,8 @@ PubSubClient mqttClient(wifiClient);
 unsigned long lastMsgTime = 0;
 const long interval = 5000; 
 
-int soilMoisture = 0;
-int waterLevel = 0;
+float soilMoisture = 0;
+float waterLevel = 0;
 float temp = 0;
 float hum = 0;
 
@@ -148,8 +148,8 @@ void readAndPublishSensors() {
   int soilsensor = analogRead(SOIL_PIN);
   int watersensor = analogRead(WATER_PIN);
   // Map giá trị cho ESP32 (0-4095)
-  soilMoisture = map(soilsensor, 1680, 3620, 0, 100); 
-  waterLevel = map(watersensor, 0, 4095, 0, 100);
+  soilMoisture = (float)soilsensor/4095.0 * 100.0; 
+  waterLevel = (float)watersensor/4095.0 * 100.0;
 
   StaticJsonDocument<256> dataDoc;
   dataDoc["soil"] = soilMoisture;
