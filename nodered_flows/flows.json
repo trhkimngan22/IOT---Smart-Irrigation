@@ -277,6 +277,107 @@
         "uriTabActive": "tab-uri-advanced"
     },
     {
+        "id": "ef4af5fe5957bd53",
+        "type": "mqtt-broker",
+        "name": "HiveMQ",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "62a8172fcba5d724",
+        "type": "mongodb4-client",
+        "name": "",
+        "protocol": "mongodb",
+        "hostname": "",
+        "port": "",
+        "dbName": "smart_garden",
+        "appName": "",
+        "authSource": "admin",
+        "authMechanism": "DEFAULT",
+        "tls": true,
+        "tlsCAFile": "",
+        "tlsCertificateKeyFile": "",
+        "tlsInsecure": false,
+        "connectTimeoutMS": "30000",
+        "socketTimeoutMS": "0",
+        "minPoolSize": "0",
+        "maxPoolSize": "100",
+        "maxIdleTimeMS": "0",
+        "uri": "mongodb://admin:123@ac-wio11pj-shard-00-00.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-01.aggipjn.mongodb.net:27017,ac-wio11pj-shard-00-02.aggipjn.mongodb.net:27017/smart_garden?ssl=true&authSource=admin&retryWrites=true&w=majority",
+        "advanced": "{}",
+        "uriTabActive": "tab-uri-advanced"
+    },
+    {
+        "id": "165354a2bf2135d4",
+        "type": "ui_tab",
+        "name": "Hệ thống tưới",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "779c7118d2e078d9",
+        "type": "ui_group",
+        "name": "Giao diện đăng nhập",
+        "tab": "165354a2bf2135d4",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "81717cb3e0e04156",
+        "type": "pushsafer-api-key",
+        "name": "Myphone"
+    },
+    {
+        "id": "87e124dfe217b976",
+        "type": "pushsafer-notification-template",
+        "name": "Cảnh báo lỗi",
+        "title": "",
+        "icon": "",
+        "iconcolor": "#ffffff",
+        "sound": "",
+        "vibration": "",
+        "priority": "",
+        "devices": "",
+        "timetolive": "",
+        "retry": "",
+        "expire": "",
+        "answer": "",
+        "url": "",
+        "urltitle": "",
+        "image": "",
+        "image2": "",
+        "image3": ""
+    },
+    {
         "id": "33b17218fabe43a1",
         "type": "mqtt in",
         "z": "c2bee6c445d2b842",
@@ -703,6 +804,194 @@
                 "ac868a10142081ad",
                 "2aba95bd898f68f3"
             ],
+            []
+        ]
+    },
+    {
+        "id": "d5d41f21f0f4da09",
+        "type": "mqtt in",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "topic": "irrigation/alert",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "ef4af5fe5957bd53",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 650,
+        "y": 840,
+        "wires": [
+            [
+                "682d39620e7fd79a"
+            ]
+        ]
+    },
+    {
+        "id": "682d39620e7fd79a",
+        "type": "json",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 810,
+        "y": 840,
+        "wires": [
+            [
+                "e4ed7e36571aae5b"
+            ]
+        ]
+    },
+    {
+        "id": "e4ed7e36571aae5b",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "function 2",
+        "func": "let faultData = msg.payload;\nlet listSensors = faultData.sensors.join(\", \"); \n\nmsg.payload = {\n    t: \"CẢNH BÁO HỆ THỐNG\", \n    m: \"Phát hiện lỗi tại: \" + listSensors,\n    s: \"11\", // Chuông báo động\n    v: \"3\",  // Rung mạnh\n    i: \"5\",  // Icon cảnh báo\n    d: \"a\"   // Gửi tất cả thiết bị\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 840,
+        "wires": [
+            [
+                "69acaece0c7acb59"
+            ]
+        ]
+    },
+    {
+        "id": "6e0e0f678c92a954",
+        "type": "ui_template",
+        "z": "c2bee6c445d2b842",
+        "group": "779c7118d2e078d9",
+        "name": "Giao diện đăng nhập",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n    /* 1. Xóa bỏ hoàn toàn khung và lề mặc định của Node-RED Dashboard */\n    .md-content {\n        background-color: transparent !important;\n    }\n\n    .vbox {\n        height: 100vh !important;\n        padding: 0 !important;\n    }\n\n    ui-card-panel {\n        box-shadow: none !important;\n        border: none !important;\n        background: transparent !important;\n        margin: 0 !important;\n        padding: 0 !important;\n        width: 100% !important;\n    }\n\n    .nr-dashboard-template {\n        padding: 0 !important;\n        margin: 0 !important;\n        width: 100% !important;\n        height: 100vh !important;\n    }\n\n    /* 2. Nền xanh đậm toàn màn hình */\n    .login-container {\n        width: 100vw;\n        height: 100vh;\n        background-color: #4c7c5c;\n        display: flex;\n        justify-content: center;\n        align-items: center;\n        position: fixed;\n        top: 0;\n        left: 0;\n        z-index: 9999;\n    }\n\n    /* 3. Khung bên trong */\n    .login-box {\n        width: 90%;\n        max-width: 1000px;\n        height: 600px;\n        background-color: #f0f7f2;\n        border-radius: 40px;\n        display: flex;\n        overflow: hidden;\n        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);\n    }\n\n    /* 4. Phần Form */\n    .login-form {\n        flex: 1.2;\n        padding: 60px;\n        display: flex;\n        flex-direction: column;\n        background: transparent !important;\n    }\n\n    .logo-text {\n        color: #4c7c5c;\n        font-size: 1.2rem;\n        margin-bottom: 30px;\n        display: flex;\n        align-items: center;\n        gap: 10px;\n        font-weight: bold;\n    }\n\n    .login-form h1 {\n        color: #4c7c5c !important;\n        background: transparent !important;\n        font-size: 4rem;\n        margin: 0 0 40px 0;\n        padding: 0 !important;\n        font-weight: 800;\n        text-transform: uppercase;\n        letter-spacing: 4px;\n        display: block !important;\n    }\n\n    .input-group {\n        margin-bottom: 25px;\n    }\n\n    label {\n        display: block;\n        margin-bottom: 10px;\n        font-size: 1.1rem;\n        color: #4c7c5c;\n        font-weight: 600;\n    }\n\n    input {\n        width: 100%;\n        padding: 18px 25px;\n        border-radius: 30px;\n        border: 1px solid #d1e3d5;\n        background-color: #ffffff;\n        font-size: 1rem;\n        color: #333;\n    }\n\n    button {\n        margin-top: 20px;\n        padding: 18px;\n        border-radius: 40px;\n        border: none;\n        background-color: #1a2e22;\n        color: white;\n        font-size: 1.3rem;\n        font-weight: bold;\n        text-transform: uppercase;\n        cursor: pointer;\n        transition: 0.3s;\n    }\n\n    button:hover {\n        background-color: #4c7c5c;\n        transform: translateY(-2px);\n    }\n\n    /* 5. Hình ảnh bên phải */\n    .login-image {\n        flex: 1;\n        background-image: url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1974&auto=format&fit=crop');\n        background-size: cover;\n        background-position: center;\n        border-radius: 0 40px 40px 0;\n        margin: 15px;\n    }\n</style>\n\n<div class=\"login-container\">\n    <div class=\"login-box\">\n        <div class=\"login-form\">\n            <div class=\"logo-text\">🌿 Plant Planet</div>\n            <h1>LOGIN</h1>\n\n            <div class=\"input-group\">\n                <label>Username</label>\n                <input type=\"text\" ng-model=\"user\" placeholder=\"Enter username...\">\n            </div>\n\n            <div class=\"input-group\">\n                <label>Password</label>\n                <input type=\"password\" ng-model=\"pass\" placeholder=\"Enter password...\">\n            </div>\n\n            <button ng-click=\"send({payload: {username: user, password: pass}})\">Submit</button>\n        </div>\n        <div class=\"login-image\"></div>\n    </div>\n</div>\n<script>\n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            // Chỉ khi status là success mới thực hiện lệnh nhảy trang\n            if (msg && msg.payload && msg.payload.status === \"success\") {\n                window.location.href = \"http://127.0.0.1:1882/home/index.html\";\n            }\n        });\n    })(scope);\n</script>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 640,
+        "y": 1080,
+        "wires": [
+            [
+                "b91de411ec80eff1"
+            ]
+        ]
+    },
+    {
+        "id": "289a84c74196bc4b",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "users",
+        "operation": "findOne",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 1080,
+        "y": 1080,
+        "wires": [
+            [
+                "911452465bd8dd32"
+            ]
+        ]
+    },
+    {
+        "id": "b91de411ec80eff1",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "function 1",
+        "func": "msg.payload = { \n    username: msg.payload.username, \n    password: msg.payload.password \n}; \nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 1080,
+        "wires": [
+            [
+                "289a84c74196bc4b"
+            ]
+        ]
+    },
+    {
+        "id": "911452465bd8dd32",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "function kiểm tra",
+        "func": "// msg.payload là kết quả từ MongoDB (find/findOne)\n\nif (msg.payload) {\n    // === ĐĂNG NHẬP THÀNH CÔNG ===\n    // Gửi tín hiệu \"success\" quay lại node Template\n    msg.payload = {\n        status: \"success\"\n    };\n\n    // (Tuỳ chọn) Gửi thêm thông báo cho node Alert nếu muốn\n    // var msgAlert = { payload: \"Đăng nhập thành công!\" };\n    // return [msg, msgAlert]; \n\n    return msg;\n\n} else {\n    // === ĐĂNG NHẬP THẤT BẠI ===\n    // Gửi tín hiệu \"error\" quay lại\n    msg.payload = {\n        status: \"error\",\n        message: \"Sai tài khoản hoặc mật khẩu\"\n    };\n    return msg;\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1310,
+        "y": 1080,
+        "wires": [
+            [
+                "2be11394746b2781"
+            ],
+            [
+                "329adee57ef1c3d1"
+            ]
+        ]
+    },
+    {
+        "id": "2be11394746b2781",
+        "type": "ui_ui_control",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "events": "all",
+        "x": 1520,
+        "y": 980,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "329adee57ef1c3d1",
+        "type": "ui_toast",
+        "z": "c2bee6c445d2b842",
+        "position": "top right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "Báo trạng thái",
+        "x": 1540,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "69acaece0c7acb59",
+        "type": "pushsafer",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "apikey": "81717cb3e0e04156",
+        "notificationtemplate": "87e124dfe217b976",
+        "x": 1160,
+        "y": 840,
+        "wires": [
+            [],
             []
         ]
     },
