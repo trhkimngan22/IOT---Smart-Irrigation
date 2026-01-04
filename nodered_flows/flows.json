@@ -475,8 +475,8 @@
         "correl": "",
         "expiry": "",
         "broker": "8fd88c298088359e",
-        "x": 1720,
-        "y": 260,
+        "x": 1860,
+        "y": 60,
         "wires": []
     },
     {
@@ -484,21 +484,27 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "control_watering_now",
-        "func": "// KHỞI TẠO BIẾN \nvar mode = flow.get(\"mode\") || \"manual\";\n// manualState: Lưu trạng thái nút bấm (ON/OFF)\nvar manualState = flow.get(\"manualState\") || \"OFF\";\n// isPumping: Lưu trạng thái thực tế bơm đang chạy hay không\nvar isPumping = flow.get(\"isPumping\") || false;\nvar mqttTopic = \"irrigation/control\";\n\n// Lấy cài đặt Auto\nvar soilLimit = Number(flow.get(\"soilLimit\")) || 30;\nvar humLimit = Number(flow.get(\"humLimit\")) || 40;\nvar tempLimit = Number(flow.get(\"tempLimit\")) || 35;\n\n// HÀM LOGIC AUTO \nfunction getAutoDecision(s) {\n    if (!s) return \"OFF\";\n    var curSoil = Number(s.soil);\n    var curHum = Number(s.hum);\n    var curTemp = Number(s.temp);\n\n    var needWater = (curSoil < soilLimit);\n    if (curHum < humLimit && curSoil < soilLimit) needWater = true;\n    if (curTemp > tempLimit) return \"OFF\";\n\n    if (needWater) return \"ON\";\n    if (!needWater) return \"OFF\";\n    return \"KEEP\";\n}\n\n// XỬ LÝ LỆNH TỪ NÚT BẤM (BUTTON CLICK)\nif (msg.cmd === \"PUMP_ON\" || msg.cmd === \"PUMP_OFF\") {\n    var cmd = (msg.cmd === \"PUMP_ON\") ? \"ON\" : \"OFF\";\n    // LƯU TRẠNG THÁI VÀO BỘ NHỚ\n    flow.set(\"manualState\", cmd);\n    // Debug: In ra để xem đã lưu chưa\n    node.warn(`[DEBUG CLICK] Đã lưu manualState: ${cmd}`);\n    if (mode === \"manual\") {\n        flow.set(\"isPumping\", (cmd === \"ON\"));\n        // Output 1: MQTT, Output 2: null\n        return [{ topic: mqttTopic, payload: cmd }, null];\n    }\n    return null;\n}\n\n// =XỬ LÝ CHUYỂN CHẾ ĐỘ\nif (msg.topic === \"cmd_mode\") {\n    mode = msg.payload;\n    flow.set(\"mode\", mode);\n    var cmdToSend = \"OFF\";\n\n    if (mode === \"manual\") {\n        // KHÔI PHỤC TRẠNG THÁI CŨ\n        cmdToSend = flow.get(\"manualState\") || \"OFF\";\n        node.warn(`[DEBUG MODE] Chuyển Manual -> Khôi phục lại: ${cmdToSend}`);\n    } else {\n        // TÍNH TOÁN AUTO\n        var s = flow.get(\"lastSensors\");\n        if (s) {\n            var decision = getAutoDecision(s);\n            cmdToSend = (decision === \"KEEP\") ? (isPumping ? \"ON\" : \"OFF\") : decision;\n        } else {\n            cmdToSend = \"OFF\";\n        }\n    }\n\n    flow.set(\"isPumping\", (cmdToSend === \"ON\"));\n\n    // Gửi cập nhật về UI để UI đổi chữ Watering/Stopped cho đúng\n    var uiUpdate = {\n        mode: mode,\n        pump: cmdToSend.toLowerCase()\n    };\n\n    return [{ topic: mqttTopic, payload: cmdToSend }, { topic: \"current_settings\", payload: uiUpdate }];\n}\n\n// XỬ LÝ SETTINGS\nif (msg.topic === \"cmd_settings\") {\n    if (msg.payload.soilLimit !== undefined) flow.set(\"soilLimit\", Number(msg.payload.soilLimit));\n    if (msg.payload.humLimit !== undefined) flow.set(\"humLimit\", Number(msg.payload.humLimit));\n    if (msg.payload.tempLimit !== undefined) flow.set(\"tempLimit\", Number(msg.payload.tempLimit));\n    return [null, { topic: \"settings_saved\", payload: \"OK\" }];\n}\n\n// XỬ LÝ LOAD LẠI TRANG (GET_SETTINGS)\nif (msg.topic === \"get_settings\") {\n    var displayPumpState = \"off\";\n    if (mode === \"manual\") {\n        // Lấy biến manualState, chuyển thành chữ thường 'on'/'off'\n        displayPumpState = (manualState || \"OFF\").toLowerCase();\n        node.warn(`[DEBUG LOAD] Đang Manual -> Trả về UI trạng thái cũ: ${displayPumpState}`);\n    } else {\n        displayPumpState = isPumping ? \"on\" : \"off\";\n    }\n    var responseData = {\n        settings: {\n            soilLimit: flow.get(\"soilLimit\") || 30,\n            humLimit: flow.get(\"humLimit\") || 40,\n            tempLimit: flow.get(\"tempLimit\") || 35\n        },\n        mode: mode,\n        pump: displayPumpState // 'on' hoặc 'off'\n    };\n    return [null, { topic: \"current_settings\", payload: responseData }];\n}\n\n// XỬ LÝ SENSOR\nif (msg.payload && msg.payload.type === \"sensors\") {\n    var s = msg.payload.data;\n    flow.set(\"lastSensors\", s);\n\n    if (mode === \"manual\") return null;\n\n    var decision = getAutoDecision(s);\n    if (decision === \"ON\" && !isPumping) {\n        flow.set(\"isPumping\", true);\n        return [{ topic: mqttTopic, payload: \"ON\" }, null];\n    }\n    if (decision === \"OFF\" && isPumping) {\n        flow.set(\"isPumping\", false);\n        return [{ topic: mqttTopic, payload: \"OFF\" }, null];\n    }\n}\n\nreturn null;",
-        "outputs": 2,
+        "func": "// KHỞI TẠO BIẾN \nvar mode = flow.get(\"mode\") || \"manual\";\n// manualState: Lưu trạng thái nút bấm (ON/OFF)\nvar manualState = flow.get(\"manualState\") || \"OFF\";\n// isPumping: Lưu trạng thái thực tế bơm đang chạy hay không\nvar isPumping = flow.get(\"isPumping\") || false;\nvar mqttTopic = \"irrigation/control\";\n\n// Lấy cài đặt Auto\nvar soilLimit = Number(flow.get(\"soilLimit\")) || 30;\nvar humLimit = Number(flow.get(\"humLimit\")) || 40;\nvar tempLimit = Number(flow.get(\"tempLimit\")) || 35;\n\n// HÀM LOGIC AUTO \nfunction getAutoDecision(s) {\n    if (!s) return \"OFF\";\n    var curSoil = Number(s.soil);\n    var curHum = Number(s.hum);\n    var curTemp = Number(s.temp);\n\n    var needWater = (curSoil < soilLimit);\n    if (curHum < humLimit && curSoil < soilLimit) needWater = true;\n    if (curTemp > tempLimit) return \"OFF\";\n\n    if (needWater) return \"ON\";\n    if (!needWater) return \"OFF\";\n    return \"KEEP\";\n}\n\n// XỬ LÝ LỆNH TỪ NÚT BẤM (BUTTON CLICK)\nif (msg.cmd === \"PUMP_ON\" || msg.cmd === \"PUMP_OFF\") {\n    var cmd = (msg.cmd === \"PUMP_ON\") ? \"ON\" : \"OFF\";\n    // LƯU TRẠNG THÁI VÀO BỘ NHỚ\n    flow.set(\"manualState\", cmd);\n    // Debug: In ra để xem đã lưu chưa\n    node.warn(`[DEBUG CLICK] Đã lưu manualState: ${cmd}`);\n    \n    // Chuẩn bị lưu manualState lên cloud\n    var saveManualStateMsg = {\n        topic: \"save_manual_state\",\n        payload: cmd\n    };\n    \n    if (mode === \"manual\") {\n        flow.set(\"isPumping\", (cmd === \"ON\"));\n        // Output 1: MQTT, Output 2: null, Output 3: Save manualState\n        return [{ topic: mqttTopic, payload: cmd }, null, saveManualStateMsg];\n    }\n    // Even if not in manual mode, still save the state for next manual switch\n    return [null, null, saveManualStateMsg];\n}\n\n// =XỬ LÝ CHUYỂN CHẾ ĐỘ\nif (msg.topic === \"cmd_mode\") {\n    mode = msg.payload;\n    flow.set(\"mode\", mode);\n    var cmdToSend = \"OFF\";\n\n    if (mode === \"manual\") {\n        // KHÔI PHỤC TRẠNG THÁI CŨ\n        cmdToSend = flow.get(\"manualState\") || \"OFF\";\n        node.warn(`[DEBUG MODE] Chuyển Manual -> Khôi phục lại: ${cmdToSend}`);\n    } else {\n        // TÍNH TOÁN AUTO\n        var s = flow.get(\"lastSensors\");\n        if (s) {\n            var decision = getAutoDecision(s);\n            cmdToSend = (decision === \"KEEP\") ? (isPumping ? \"ON\" : \"OFF\") : decision;\n        } else {\n            cmdToSend = \"OFF\";\n        }\n    }\n\n    flow.set(\"isPumping\", (cmdToSend === \"ON\"));\n\n    // Gửi cập nhật về UI để UI đổi chữ Watering/Stopped cho đúng\n    var uiUpdate = {\n        mode: mode,\n        pump: cmdToSend.toLowerCase()\n    };\n    \n    // Chuẩn bị lưu mode vào MongoDB\n    var modeMsg = {\n        topic: \"save_mode\",\n        payload: mode\n    };\n    \n    node.warn(`[CHANGE MODE] User chuyển sang: ${mode}`);\n\n    return [{ topic: mqttTopic, payload: cmdToSend }, { topic: \"current_settings\", payload: uiUpdate }, modeMsg];\n}\n\n// XỬ LÝ SETTINGS\nif (msg.topic === \"cmd_settings\") {\n    // Cập nhật settings vào flow context\n    if (msg.payload.soilLimit !== undefined) flow.set(\"soilLimit\", Number(msg.payload.soilLimit));\n    if (msg.payload.humLimit !== undefined) flow.set(\"humLimit\", Number(msg.payload.humLimit));\n    if (msg.payload.tempLimit !== undefined) flow.set(\"tempLimit\", Number(msg.payload.tempLimit));\n    \n    // Trả về settings mới cho web\n    var updatedSettings = {\n        settings: {\n            soilLimit: flow.get(\"soilLimit\") || 30,\n            humLimit: flow.get(\"humLimit\") || 40,\n            tempLimit: flow.get(\"tempLimit\") || 35\n        },\n        mode: mode,\n        pump: isPumping ? \"on\" : \"off\"\n    };\n    \n    node.warn(`[UPDATE SETTINGS] Soil: ${updatedSettings.settings.soilLimit}, Hum: ${updatedSettings.settings.humLimit}, Temp: ${updatedSettings.settings.tempLimit}`);\n    \n    // Output 1: Gửi msg để lưu MongoDB, Output 2: Gửi settings về web\n    return [msg, { topic: \"current_settings\", payload: updatedSettings }];\n}\n\n// XỬ LÝ LOAD LẠI TRANG (GET_SETTINGS)\nif (msg.topic === \"get_settings\") {\n    var displayPumpState = \"off\";\n    if (mode === \"manual\") {\n        // Lấy biến manualState, chuyển thành chữ thường 'on'/'off'\n        displayPumpState = (manualState || \"OFF\").toLowerCase();\n        node.warn(`[DEBUG LOAD] Đang Manual -> Trả về UI trạng thái cũ: ${displayPumpState}`);\n    } else {\n        displayPumpState = isPumping ? \"on\" : \"off\";\n    }\n    var responseData = {\n        settings: {\n            soilLimit: flow.get(\"soilLimit\") || 30,\n            humLimit: flow.get(\"humLimit\") || 40,\n            tempLimit: flow.get(\"tempLimit\") || 35\n        },\n        mode: mode,\n        pump: displayPumpState // 'on' hoặc 'off'\n    };\n    return [null, { topic: \"current_settings\", payload: responseData }];\n}\n\n// XỬ LÝ SENSOR\nif (msg.payload && msg.payload.type === \"sensors\") {\n    var s = msg.payload.data;\n    flow.set(\"lastSensors\", s);\n\n    if (mode === \"manual\") return null;\n\n    var decision = getAutoDecision(s);\n    if (decision === \"ON\" && !isPumping) {\n        flow.set(\"isPumping\", true);\n        return [{ topic: mqttTopic, payload: \"ON\" }, null];\n    }\n    if (decision === \"OFF\" && isPumping) {\n        flow.set(\"isPumping\", false);\n        return [{ topic: mqttTopic, payload: \"OFF\" }, null];\n    }\n}\n\nreturn null;",
+        "outputs": 3,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1440,
+        "x": 1480,
         "y": 260,
         "wires": [
             [
                 "ee94902f3ec3ce40",
+                "c19fc926d50f0ff0",
                 "3d766b49df972104"
             ],
-            []
+            [
+                "a8aa4ef45198b245"
+            ],
+            [
+                "switch_manual_state_5f129801"
+            ]
         ]
     },
     {
@@ -506,7 +512,7 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Add Timestamp",
-        "func": "// msg.payload {\"soil\": 65, \"water\": 80, \"temp\": 30, \"hum\": 70}\nvar sensor = msg.payload;\nif (typeof sensor === 'string') {\n    sensor = JSON.parse(sensor);\n}\nsensor.timestamp = new Date();\nmsg.orgin_data = sensor;\nmsg.payload = [sensor];\n\nreturn msg;",
+        "func": "// msg.payload {\"soil\": 65, \"water\": 80, \"temp\": 30, \"hum\": 70}\nvar sensor = msg.payload;\nif (typeof sensor === 'string') {\n    sensor = JSON.parse(sensor);\n}\nsensor.timestamp = new Date();\nsensor.useid = flow.get('userid')\nmsg.orgin_data = sensor;\nmsg.payload = [sensor];\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -517,7 +523,8 @@
         "y": 140,
         "wires": [
             [
-                "e517b0101620a602"
+                "e517b0101620a602",
+                "fdee5e7e940cbb0e"
             ]
         ]
     },
@@ -564,7 +571,7 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Query Function",
-        "func": "// Cấu hình Query cho Node MongoDB\nmsg.payload = {};\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    temp: 1,\n    hum: 1,\n    soil: 1,\n    water: 1,\n    timestamp: 0,\n    _id: 1\n};\n\nreturn msg;",
+        "func": "// Cấu hình Query cho Node MongoDB - Filter by userid\nvar userid = flow.get('userid');\n\nif (!userid) {\n    node.warn('[QUERY SENSOR] No userid found - returning empty result');\n    return null;\n}\n\nmsg.payload = { useid: userid };  // Filter by user ID\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    temp: 1,\n    hum: 1,\n    soil: 1,\n    water: 1,\n    timestamp: 1,\n    _id: 1\n};\n\nnode.warn(`[QUERY SENSOR] Loading data for user: ${userid}`);\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -633,15 +640,15 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "format_history_log",
-        "func": "if (msg.payload !== \"ON\") {\n    return null;\n}\n\n// Lấy chế độ hiện tại (Auto/Manual) để ghi chú\nvar currentMode = flow.get(\"mode\") || \"manual\";\n\n// Tạo bản ghi để lưu vào MongoDB\nmsg.payload = {\n    timestamp: new Date(),      \n    action: \"WATERING START\",  \n    mode: currentMode,         \n    note: \"Pump started\"        \n};\n\nreturn msg;",
+        "func": "if (msg.payload !== \"ON\") {\n    return null;\n}\n\n// Lấy chế độ hiện tại (Auto/Manual) để ghi chú\nvar currentMode = flow.get(\"mode\") || \"manual\";\n\n// Tạo bản ghi để lưu vào MongoDB\nmsg.payload = {\n    timestamp: new Date(),      \n    action: \"WATERING START\",  \n    mode: currentMode,         \n    note: \"Pump started\" ,\n    userid: flow.get(\"userid\")       \n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1730,
-        "y": 360,
+        "x": 1870,
+        "y": 160,
         "wires": [
             [
                 "47948fd488787946"
@@ -660,8 +667,8 @@
         "maxTimeMS": "0",
         "handleDocId": false,
         "name": "",
-        "x": 1940,
-        "y": 360,
+        "x": 2200,
+        "y": 160,
         "wires": [
             []
         ]
@@ -691,7 +698,7 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Query function for history",
-        "func": "// Cấu hình Query cho Node MongoDB\nmsg.payload = {};\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    action: 1,\n    mode: 1,\n    note: 1,\n    timestamp: 1,\n    _id: 1\n};\n\nreturn msg;",
+        "func": "// Cấu hình Query cho Node MongoDB - Filter by userid\nvar userid = flow.get('userid');\n\nif (!userid) {\n    node.warn('[QUERY HISTORY] No userid found - returning empty result');\n    return null;\n}\n\nmsg.payload = { useid: userid };  // Filter by user ID\nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    action: 1,\n    mode: 1,\n    note: 1,\n    timestamp: 1,\n    _id: 1\n};\n\nnode.warn(`[QUERY HISTORY] Loading history for user: ${userid}`);\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -753,58 +760,6 @@
             [
                 "8bde4038f60b568a"
             ]
-        ]
-    },
-    {
-        "id": "2aba95bd898f68f3",
-        "type": "function",
-        "z": "c2bee6c445d2b842",
-        "name": "Restore settings",
-        "func": "// Lấy context global\nvar globalContext = global;\n\n//Lấy các giá trị đã lưu \nvar currentSettings = globalContext.get(\"irrigationSettings\") || { soilLimit: 30, humLimit: 40, tempLimit: 35 };\nvar currentMode = globalContext.get(\"systemMode\") || \"auto\"; // Mặc định là auto\nvar pumpStatus = globalContext.get(\"pumpStatus\") || \"off\";   // Mặc định là tắt\n\n// XỬ LÝ CÁC LỆNH TỪ UI GỬI XUỐNG\n\n// Lưu cài đặt\nif (msg.topic === \"cmd_settings\") {\n    globalContext.set(\"irrigationSettings\", msg.payload);\n    msg.topic = \"settings_saved\";\n    return msg;\n}\n\n// Lưu chế độ (Auto/Manual) khi người dùng bấm chuyển tab\nif (msg.topic === \"cmd_mode\") {\n    globalContext.set(\"systemMode\", msg.payload);\n    return null; // Không cần phản hồi gì đặc biệt\n}\n\n// Lưu trạng thái máy bơm (Bật/Tắt) khi người dùng bấm Start/Stop\nif (msg.payload && msg.payload.cmd === \"PUMP_ON\") {\n    globalContext.set(\"pumpStatus\", \"on\");\n    return msg; // Cho tin nhắn đi tiếp để điều khiển phần cứng\n}\nif (msg.payload && msg.payload.cmd === \"PUMP_OFF\") {\n    globalContext.set(\"pumpStatus\", \"off\");\n    return msg;\n}\n\nif (msg.topic === \"get_settings\") {\n    msg.topic = \"current_settings\";\n    // Gửi trả về tất cả: Cài đặt, Chế độ hiện tại, Trạng thái bơm\n    msg.payload = {\n        settings: currentSettings,\n        mode: currentMode,\n        pump: pumpStatus\n    };\n    return msg;\n}\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1200,
-        "y": 580,
-        "wires": [
-            [
-                "a8aa4ef45198b245"
-            ]
-        ]
-    },
-    {
-        "id": "a8aa4ef45198b245",
-        "type": "uibuilder",
-        "z": "c2bee6c445d2b842",
-        "name": "SmartIrrigation",
-        "topic": "",
-        "url": "home",
-        "okToGo": true,
-        "fwdInMessages": false,
-        "allowScripts": false,
-        "allowStyles": false,
-        "copyIndex": true,
-        "templateFolder": "blank",
-        "extTemplate": "",
-        "showfolder": false,
-        "reload": false,
-        "sourceFolder": "src",
-        "deployedVersion": "7.5.0",
-        "showMsgUib": false,
-        "title": "",
-        "descr": "",
-        "editurl": "vscode://file/Users/tranhoangkimngan/CQ2022/25-26/HK1-2526/Nhập môn lập trình kết nối vạn vật/Đồ án/IOT---Smart-Irrigation/nodered_flows/uibuilder/home/?windowId=_blank",
-        "x": 1190,
-        "y": 320,
-        "wires": [
-            [
-                "ac868a10142081ad",
-                "2aba95bd898f68f3"
-            ],
-            []
         ]
     },
     {
@@ -903,7 +858,8 @@
         "y": 1080,
         "wires": [
             [
-                "911452465bd8dd32"
+                "911452465bd8dd32",
+                "551bf3d108415856"
             ]
         ]
     },
@@ -932,7 +888,7 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "function kiểm tra",
-        "func": "// msg.payload là kết quả từ MongoDB (find/findOne)\n\nif (msg.payload) {\n    // === ĐĂNG NHẬP THÀNH CÔNG ===\n    // Gửi tín hiệu \"success\" quay lại node Template\n    msg.payload = {\n        status: \"success\"\n    };\n\n    // (Tuỳ chọn) Gửi thêm thông báo cho node Alert nếu muốn\n    // var msgAlert = { payload: \"Đăng nhập thành công!\" };\n    // return [msg, msgAlert]; \n\n    return msg;\n\n} else {\n    // === ĐĂNG NHẬP THẤT BẠI ===\n    // Gửi tín hiệu \"error\" quay lại\n    msg.payload = {\n        status: \"error\",\n        message: \"Sai tài khoản hoặc mật khẩu\"\n    };\n    return msg;\n}",
+        "func": "// Node: function kiểm tra\n// msg.payload là user tìm thấy từ MongoDB\n\nif (msg.payload) {\n    // === ĐĂNG NHẬP THÀNH CÔNG ===\n\n    var user = msg.payload;\n    var mode = \"DEFAULT\"; // Biến để debug xem đang lấy nguồn nào\n\n    // 1. Kiểm tra xem user này đã có settings riêng chưa\n    if (user.settings) {\n        mode = \"USER_DB\";\n        flow.set(\"soilLimit\", Number(user.settings.soilLimit));\n        flow.set(\"humLimit\", Number(user.settings.humLimit));\n        flow.set(\"tempLimit\", Number(user.settings.tempLimit));\n    } else {\n        mode = \"DEFAULT_INIT\";\n        flow.set(\"soilLimit\", 30);\n        flow.set(\"humLimit\", 40);\n        flow.set(\"tempLimit\", 35);\n    }\n\n    node.warn(`User: ${user.username} - Mode: ${mode} - Soil: ${flow.get(\"soilLimit\")}`);\n    msg.payload = {\n        status: \"success\", \n        user: user.username\n    };\n\n    return [msg, null];\n\n} else {\n    // === THẤT BẠI ===\n    msg.payload = {\n        status: \"error\",\n        message: \"Sai tài khoản hoặc mật khẩu\"\n    };\n    return [null, msg];\n}",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
@@ -993,6 +949,295 @@
         "wires": [
             [],
             []
+        ]
+    },
+    {
+        "id": "551bf3d108415856",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Get userid",
+        "func": "flow.set('username', msg.payload.username);\nflow.set('userid', msg.payload._id);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 960,
+        "wires": [
+            [
+                "bac278e329e6e819"
+            ]
+        ]
+    },
+    {
+        "id": "fdee5e7e940cbb0e",
+        "type": "debug",
+        "z": "c2bee6c445d2b842",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1210,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c19fc926d50f0ff0",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Prepare save settings",
+        "func": "// Function: Prepare Save Settings (Dùng UserID)\n\nif (msg.topic === \"cmd_settings\") {\n\n    // 1. Lấy ID của user (đã lưu ở Bước 1)\n    var userId = flow.get(\"userid\");\n\n    if (!userId) {\n        node.warn(\"Lỗi: Không tìm thấy User ID (chưa đăng nhập?)\");\n        return null;\n    }\n\n    // 2. Xử lý dữ liệu settings\n    var inputSettings = msg.payload;\n    if (typeof inputSettings === \"string\") {\n        try {\n            inputSettings = JSON.parse(inputSettings);\n        } catch (e) { return null; }\n    }\n\n    // 3. Cấu hình MongoDB\n    msg.collection = \"users\";\n    msg.operation = \"updateOne\";\n\n    // 4. TẠO LỆNH UPDATE BẰNG MẢNG (Array)\n    // Phần tử 1: Tìm theo _id (thay vì username)\n    // Phần tử 2: Set lại settings\n    msg.payload = [\n        { _id: userId },                       // <--- THAY ĐỔI Ở ĐÂY: Tìm bằng ID\n        { $set: { settings: inputSettings } }\n    ];\n\n    // Xóa query cũ để tránh lỗi\n    delete msg.query;\n\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1720,
+        "y": 360,
+        "wires": [
+            [
+                "909db3f8f841aadf",
+                "fce1dd7f1d155d30"
+            ]
+        ]
+    },
+    {
+        "id": "909db3f8f841aadf",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "",
+        "operation": "",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "",
+        "x": 2010,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fce1dd7f1d155d30",
+        "type": "debug",
+        "z": "c2bee6c445d2b842",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2020,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "bac278e329e6e819",
+        "type": "debug",
+        "z": "c2bee6c445d2b842",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1430,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "cccc8db417796bae",
+        "type": "change",
+        "z": "c2bee6c445d2b842",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "get_settings",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1350,
+        "y": 620,
+        "wires": [
+            [
+                "load_settings_from_db"
+            ]
+        ]
+    },
+    {
+        "id": "load_settings_from_db",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Prepare Load Settings Query",
+        "func": "// Lấy userid từ flow context\nvar userId = flow.get(\"userid\");\n\nif (!userId) {\n    node.warn(\"Không tìm thấy User ID - Sử dụng settings mặc định\");\n    // Load settings mặc định vào flow context\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    // Không query MongoDB, return null để dừng flow này\n    return null;\n}\n\n// Chuẩn bị query MongoDB để lấy user document\nmsg.payload = { _id: userId };\nmsg.collection = \"users\";\nmsg.operation = \"findOne\";\n\nnode.warn(`[QUERY DB] Đang tìm user với ID: ${userId}`);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 620,
+        "wires": [
+            [
+                "mongodb_load_user_settings"
+            ]
+        ]
+    },
+    {
+        "id": "mongodb_load_user_settings",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "users",
+        "operation": "findOne",
+        "output": "toArray",
+        "maxTimeMS": "0",
+        "handleDocId": false,
+        "name": "Load User from MongoDB",
+        "x": 1860,
+        "y": 620,
+        "wires": [
+            [
+                "apply_loaded_settings"
+            ]
+        ]
+    },
+    {
+        "id": "apply_loaded_settings",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Apply Loaded Settings to Flow",
+        "func": "// Xử lý kết quả từ MongoDB\nvar user = msg.payload;\n\nif (user && user.settings) {\n    // Load settings từ MongoDB vào flow context\n    flow.set(\"soilLimit\", Number(user.settings.soilLimit) || 30);\n    flow.set(\"humLimit\", Number(user.settings.humLimit) || 40);\n    flow.set(\"tempLimit\", Number(user.settings.tempLimit) || 35);\n    \n    // Load mode (manual/auto) từ MongoDB\n    if (user.settings.mode) {\n        flow.set(\"mode\", user.settings.mode);\n        node.warn(`[LOAD MODE FROM DB] User: ${user.username} - Mode: ${user.settings.mode}`);\n    } else {\n        // Default mode\n        flow.set(\"mode\", \"manual\");\n    }\n    \n    // Load manualState từ MongoDB\n    if (user.settings.manualState) {\n        flow.set(\"manualState\", user.settings.manualState);\n        node.warn(`[LOAD MANUAL STATE FROM DB] User: ${user.username} - ManualState: ${user.settings.manualState}`);\n    } else {\n        // Default manualState\n        flow.set(\"manualState\", \"OFF\");\n    }\n    \n    node.warn(`[LOAD FROM DB] User: ${user.username} - Soil: ${user.settings.soilLimit}, Hum: ${user.settings.humLimit}, Temp: ${user.settings.tempLimit}, ManualState: ${user.settings.manualState}`);\n} else {\n    // Nếu không có settings trong DB, dùng default\n    node.warn(\"[LOAD FROM DB] Không tìm thấy settings - Dùng mặc định\");\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    flow.set(\"mode\", \"manual\");\n    flow.set(\"manualState\", \"OFF\");\n}\n\n// Đặt lại topic để chuyển sang xử lý get_settings\nmsg.topic = \"get_settings\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2250,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "save_manual_state_func_d3a0b886",
+        "type": "function",
+        "z": "c2bee6c445d2b842",
+        "name": "Prepare Save ManualState",
+        "func": "// Prepare MongoDB update for manualState\nvar manualState = msg.payload;\nvar userid = flow.get('userid');\n\nif (!userid) {\n    node.warn('[SAVE MANUAL STATE] No userid, skipping save');\n    return null;\n}\n\n// Configure MongoDB - use the same pattern as save_settings\nmsg.collection = \"users\";\nmsg.operation = \"updateOne\";\n\n// Use ARRAY format: [filter, update]\nmsg.payload = [\n    { _id: userid },                              // Filter by user ID\n    { $set: { 'settings.manualState': manualState } }  // Update manualState field\n];\n\n// Remove old query/update properties to avoid conflicts\ndelete msg.query;\ndelete msg.update;\n\nnode.warn(`[SAVE MANUAL STATE] Saving manualState: ${manualState} for user: ${userid}`);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2220,
+        "y": 260,
+        "wires": [
+            [
+                "mongodb_save_manual_state_3484510c"
+            ]
+        ]
+    },
+    {
+        "id": "mongodb_save_manual_state_3484510c",
+        "type": "mongodb4",
+        "z": "c2bee6c445d2b842",
+        "clientNode": "4a6acd931f6d76ce",
+        "mode": "collection",
+        "collection": "users",
+        "operation": "",
+        "output": "toArray",
+        "maxTimeMS": "",
+        "handleDocId": false,
+        "name": "Save ManualState to MongoDB",
+        "x": 2650,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "switch_manual_state_5f129801",
+        "type": "switch",
+        "z": "c2bee6c445d2b842",
+        "name": "Filter save_manual_state",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "save_manual_state",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1870,
+        "y": 260,
+        "wires": [
+            [
+                "save_manual_state_func_d3a0b886"
+            ]
+        ]
+    },
+    {
+        "id": "a8aa4ef45198b245",
+        "type": "uibuilder",
+        "z": "c2bee6c445d2b842",
+        "name": "SmartIrrigation",
+        "topic": "",
+        "url": "home",
+        "okToGo": true,
+        "fwdInMessages": false,
+        "allowScripts": false,
+        "allowStyles": false,
+        "copyIndex": true,
+        "templateFolder": "blank",
+        "extTemplate": "",
+        "showfolder": false,
+        "reload": false,
+        "sourceFolder": "src",
+        "deployedVersion": "7.5.0",
+        "showMsgUib": false,
+        "title": "",
+        "descr": "",
+        "editurl": "vscode://file/Users/tranhoangkimngan/CQ2022/25-26/HK1-2526/Nhập môn lập trình kết nối vạn vật/Đồ án/IOT---Smart-Irrigation/nodered_flows/uibuilder/home/?windowId=_blank",
+        "x": 1190,
+        "y": 320,
+        "wires": [
+            [
+                "c19fc926d50f0ff0",
+                "ac868a10142081ad"
+            ],
+            [
+                "cccc8db417796bae"
+            ]
         ]
     },
     {

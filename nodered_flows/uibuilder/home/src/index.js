@@ -22,7 +22,36 @@ document.addEventListener("DOMContentLoaded", () => {
   uibuilder.onChange('msg', msg => {
     if (!msg || !msg.payload) return;
     if (msg.topic === "current_settings") {
+      // Update settings inputs
       if (msg.payload.settings) updateInputValues(msg.payload.settings);
+      
+      // Update mode and pump state from server
+      if (msg.payload.mode) {
+        const serverMode = msg.payload.mode;
+        localStorage.setItem(STORE_KEY_MODE, serverMode);
+        if (serverMode === "manual") {
+          setManualTab();
+        } else {
+          setAutoTab();
+        }
+        console.log(`[SERVER SYNC] Mode set to: ${serverMode}`);
+      }
+      
+      // Update pump state from server
+      if (msg.payload.pump !== undefined) {
+        const serverPump = msg.payload.pump; // 'on' or 'off'
+        localStorage.setItem(STORE_KEY_PUMP, serverPump);
+        if (statusText) {
+          if (serverPump === "on") {
+            statusText.innerText = "Watering...";
+            statusText.style.cssText = "color: #2ecc71 !important; font-weight: bold;";
+          } else {
+            statusText.innerText = "Stopped";
+            statusText.style.cssText = "color: #666 !important; font-weight: bold;";
+          }
+        }
+        console.log(`[SERVER SYNC] Pump state set to: ${serverPump}`);
+      }
     }
 
     if (msg.payload.type === "sensors") updateSensorUI(msg.payload.data);
