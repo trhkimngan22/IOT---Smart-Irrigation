@@ -5,3 +5,4 @@ tensorflow
 joblib
 gradio
 paho-mqtt
+absl-py
