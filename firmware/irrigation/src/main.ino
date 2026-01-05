@@ -71,16 +71,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
     message += (char)payload[i];
   }
   Serial.print("Message arrived [");
-  Serial.print(TOPIC_CONTROL_PUMP);
+  Serial.print(String(topic));
   Serial.print("]: ");
   Serial.println(message);
   if (String(topic) == TOPIC_CONTROL_PUMP) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(100); 
+    digitalWrite(BUZZER_PIN, LOW);
     if (message.indexOf("ON") >= 0) {
       Serial.println(">> COMMAND: TURN PUMP ON");
       digitalWrite(RELAY_PIN, HIGH); 
-      digitalWrite(BUZZER_PIN, HIGH);
-      delay(100); 
-      digitalWrite(BUZZER_PIN, LOW);
     }
     else if (message.indexOf("OFF") >= 0) {
       Serial.println(">> COMMAND: TURN PUMP OFF");
