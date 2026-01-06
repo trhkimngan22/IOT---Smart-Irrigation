@@ -7,8 +7,8 @@ const btnManual = document.getElementById("btn-manual");
 const autoPanel = document.getElementById("auto-panel");
 const manualPanel = document.getElementById("manual-panel");
 const statusText = document.getElementById("manual-status-text");
-const STORE_KEY_MODE = "plant_mode";
-const STORE_KEY_PUMP = "plant_pump_state";
+const STORE_KEY_MODE = "plant_mode"; // Lưu cục bộ chế độ Auto/Manual
+const STORE_KEY_PUMP = "plant_pump_state"; // Lưu cục bộ trạng thái bơm
 
 // CHẠY KHI TRANG LOAD
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,10 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   uibuilder.onChange('msg', msg => {
     if (!msg || !msg.payload) return;
     if (msg.topic === "current_settings") {
-      // Update settings inputs
       if (msg.payload.settings) updateInputValues(msg.payload.settings);
-      
-      // Update mode and pump state from server
       if (msg.payload.mode) {
         const serverMode = msg.payload.mode;
         localStorage.setItem(STORE_KEY_MODE, serverMode);
@@ -37,9 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(`[SERVER SYNC] Mode set to: ${serverMode}`);
       }
       
-      // Update pump state from server
+      // Cập nhật trạng thái bơm từ server
       if (msg.payload.pump !== undefined) {
-        const serverPump = msg.payload.pump; // 'on' or 'off'
+        const serverPump = msg.payload.pump; // 'on' hoặc 'off'
         localStorage.setItem(STORE_KEY_PUMP, serverPump);
         if (statusText) {
           if (serverPump === "on") {
@@ -86,7 +83,7 @@ function restoreFromLocalStorage() {
 // Nút Chuyển Tab
 if (btnAuto) btnAuto.onclick = () => {
   localStorage.setItem(STORE_KEY_MODE, "auto");
-  setManualTab(); 
+  //setManualTab(); 
   setAutoTab();
   uibuilder.send({ topic: "cmd_mode", payload: "auto" });
 };
@@ -144,7 +141,7 @@ function setManualTab() {
   if (autoPanel) autoPanel.classList.add("hidden");
 }
 
-function updateInputValues(settings) {
+function updateInputValues(settings) { // Cập nhật giá trị ô nhập liệu
   if (document.getElementById("soil-min-input")) document.getElementById("soil-min-input").value = settings.soilLimit;
   if (document.getElementById("hum-min-input")) document.getElementById("hum-min-input").value = settings.humLimit;
   if (document.getElementById("temp-max-input")) document.getElementById("temp-max-input").value = settings.tempLimit;
