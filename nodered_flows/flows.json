@@ -603,7 +603,7 @@
         "once": true,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "[{},{\"limit\":20, \"sort\":{\"_id\":-1}}]",
+        "payload": "",
         "payloadType": "str",
         "x": 310,
         "y": 480,
@@ -696,7 +696,7 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Query function for history",
-        "func": "if (msg.trigger === \"get_history\" || !msg.trigger) {\n    var userid = flow.get('userid');\n    \n    if (!userid) {\n        return null;\n    }\n    \n    msg.payload = { userid: userid }; \n    msg.sort = { \"_id\": -1 };\n    msg.limit = 50;\n    msg.projection = {\n        action: 1,\n        mode: 1,\n        timestamp: 1,\n        _id: 1\n    };\n    \n    return msg;\n}\n\nreturn null;",
+        "func": "var userid = flow.get('userid');\nif (!userid) {\n    return null;\n}\n    \nmsg.payload = { userid: userid }; \nmsg.sort = { \"_id\": -1 };\nmsg.limit = 50;\nmsg.projection = {\n    action: 1,\n    mode: 1,\n    timestamp: 1,\n    _id: 1\n};\n    \nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -725,12 +725,12 @@
                 "p": "payload"
             }
         ],
-        "repeat": "2",
+        "repeat": "1",
         "crontab": "",
         "once": true,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "[{},{\"limit\":20, \"sort\":{\"_id\":-1}}]",
+        "payload": "",
         "payloadType": "str",
         "x": 230,
         "y": 600,
@@ -1037,8 +1037,8 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Prepare load settings query",
-        "func": "if (msg.topic === \"get_history\") {\n    var userid = flow.get(\"userid\");\n    if (!userid) {\n        node.warn(\"[GET HISTORY] No userid found\");\n        return [null, null];\n    }\n    \n    msg.trigger = \"get_history\";\n    node.warn(`[GET HISTORY] Routing to history query for user: ${userid}`);\n    \n    // Output 2: Gửi đến hàm Query \n    return [null, msg];\n}\n\nvar userId = flow.get(\"userid\");\n\nif (!userId) {\n    node.warn(\"Không tìm thấy User ID - Sử dụng settings mặc định\");\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    return [null, null];\n}\n\nmsg.payload = { _id: userId };\nmsg.collection = \"users\";\nmsg.operation = \"findOne\";\n\nnode.warn(`[QUERY DB] Đang tìm user với ID: ${userId}`);\n\n// Output 1: gửi tới mongodb_load_user_settings\nreturn [msg, null];",
-        "outputs": 2,
+        "func": "var userId = flow.get(\"userid\");\n\nif (!userId) {\n    node.warn(\"Không tìm thấy User ID - Sử dụng settings mặc định\");\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    return [null, null];\n}\n\nmsg.payload = { _id: userId };\n// msg.collection = \"users\";\n// msg.operation = \"findOne\";\n\nnode.warn(`[QUERY DB] Đang tìm user với ID: ${userId}`);\n\n// Output gửi tới mongodb_load_user_settings\nreturn msg;",
+        "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
@@ -1049,9 +1049,6 @@
         "wires": [
             [
                 "mongodb_load_user_settings"
-            ],
-            [
-                "fafe39f796f7a522"
             ]
         ]
     },
@@ -1080,14 +1077,14 @@
         "type": "function",
         "z": "c2bee6c445d2b842",
         "name": "Apply loaded settings to flow",
-        "func": "// Xử lý kết quả từ MongoDB\nvar user = msg.payload;\n\nif (user && user.settings) {\n    // Load settings từ MongoDB vào flow context\n    flow.set(\"soilLimit\", Number(user.settings.soilLimit) || 30);\n    flow.set(\"humLimit\", Number(user.settings.humLimit) || 40);\n    flow.set(\"tempLimit\", Number(user.settings.tempLimit) || 35);\n    \n    // // Load mode (manual/auto) từ MongoDB\n    // if (user.settings.mode) {\n    //     flow.set(\"mode\", user.settings.mode);\n    //     node.warn(`[LOAD MODE FROM DB] User: ${user.username} - Mode: ${user.settings.mode}`);\n    // } else {\n    //     // Default mode\n    //     flow.set(\"mode\", \"manual\");\n    // }\n    \n    // Load manualState từ MongoDB\n    if (user.settings.manualState) {\n        flow.set(\"manualState\", user.settings.manualState);\n        node.warn(`[LOAD MANUAL STATE FROM DB] User: ${user.username} - ManualState: ${user.settings.manualState}`);\n    } else {\n        // Default manualState\n        flow.set(\"manualState\", \"OFF\");\n    }\n    \n    node.warn(`[LOAD FROM DB] User: ${user.username} - Soil: ${user.settings.soilLimit}, Hum: ${user.settings.humLimit}, Temp: ${user.settings.tempLimit}, ManualState: ${user.settings.manualState}`);\n} else {\n    // Nếu không có settings trong DB, dùng default\n    node.warn(\"[LOAD FROM DB] Không tìm thấy settings - Dùng mặc định\");\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    flow.set(\"mode\", \"manual\");\n    flow.set(\"manualState\", \"OFF\");\n}\n\n// Đặt lại topic để chuyển sang xử lý get_settings\nmsg.topic = \"get_settings\";\n\nreturn msg;",
+        "func": "// Xử lý kết quả từ MongoDB\nvar user = msg.payload;\n\nif (user && user.settings) {\n    // Load settings từ MongoDB vào flow context\n    flow.set(\"soilLimit\", Number(user.settings.soilLimit) || 30);\n    flow.set(\"humLimit\", Number(user.settings.humLimit) || 40);\n    flow.set(\"tempLimit\", Number(user.settings.tempLimit) || 35);\n    \n    // Load manualState từ MongoDB\n    if (user.settings.manualState) {\n        flow.set(\"manualState\", user.settings.manualState);\n        node.warn(`[LOAD MANUAL STATE FROM DB] User: ${user.username} - ManualState: ${user.settings.manualState}`);\n    } else {\n        // Default manualState\n        flow.set(\"manualState\", \"OFF\");\n    }\n    \n    node.warn(`[LOAD FROM DB] User: ${user.username} - Soil: ${user.settings.soilLimit}, Hum: ${user.settings.humLimit}, Temp: ${user.settings.tempLimit}, ManualState: ${user.settings.manualState}`);\n} else {\n    // Nếu không có settings trong DB, dùng default\n    node.warn(\"[LOAD FROM DB] Không tìm thấy settings - Dùng mặc định\");\n    flow.set(\"soilLimit\", 30);\n    flow.set(\"humLimit\", 40);\n    flow.set(\"tempLimit\", 35);\n    flow.set(\"mode\", \"manual\");\n    flow.set(\"manualState\", \"OFF\");\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2500,
+        "x": 2380,
         "y": 660,
         "wires": [
             []
