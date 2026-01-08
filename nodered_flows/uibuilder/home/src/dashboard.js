@@ -19,8 +19,8 @@ new Vue({
         uibuilder.start({ 'serverPath': '/home' });
         this.initChart();
         uibuilder.send({ topic: "get_settings" });
-        // Request history data
-        uibuilder.send({ topic: "get_history" });
+        // // Request history data
+        // uibuilder.send({ topic: "get_history" });
 
         uibuilder.onChange('msg', (msg) => {
             if (!msg.payload) return;
@@ -30,9 +30,9 @@ new Vue({
             //     this.settings.humLimit = msg.payload.humLimit;
             //     this.settings.tempLimit = msg.payload.tempLimit;
             // }
-            if (msg.topic === "settings_saved") {
-                alert("Đã lưu cài đặt thành công!");
-            }
+            // if (msg.topic === "settings_saved") {
+            //     alert("Đã lưu cài đặt thành công!");
+            // }
             if (msg.topic === "history_table") {
                 console.log("Received history table:", msg.payload.table);
                 this.historyData = msg.payload.table;
