@@ -24,12 +24,12 @@ new Vue({
 
         uibuilder.onChange('msg', (msg) => {
             if (!msg.payload) return;
-            if (msg.topic === "current_settings") {
-                console.log("Đã khôi phục cài đặt:", msg.payload);
-                this.settings.soilLimit = msg.payload.soilLimit;
-                this.settings.humLimit = msg.payload.humLimit;
-                this.settings.tempLimit = msg.payload.tempLimit;
-            }
+            // if (msg.topic === "current_settings") {
+            //     console.log("Đã khôi phục cài đặt:", msg.payload);
+            //     this.settings.soilLimit = msg.payload.soilLimit;
+            //     this.settings.humLimit = msg.payload.humLimit;
+            //     this.settings.tempLimit = msg.payload.tempLimit;
+            // }
             if (msg.topic === "settings_saved") {
                 alert("Đã lưu cài đặt thành công!");
             }
