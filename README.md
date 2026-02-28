@@ -11,19 +11,16 @@ Hệ thống tưới cây tự động thông minh sử dụng IoT và Machine L
 ## 🏗️ Kiến trúc hệ thống
 
 ```
-┌─────────────────┐      MQTT        ┌──────────────────┐
-│   ESP32 + Sensors│ ────────────────▶│   Node-RED       │
-│   (Firmware)     │◀──────────────── │   (IoT Gateway)  │
-└─────────────────┘                   └──────────────────┘
-                                            │
-                                            ├──▶ MongoDB
-                                            ├──▶ UI Dashboard
-                                            │
-                                            ▼
-                                      ┌──────────────────┐
-                                      │  ML Backend      │
-                                      │  (Fault Detection)│
-                                      └──────────────────┘
+┌─────────────────┐       publish `irrigation/sensors`        ┌──────────────────┐
+│  ESP32 + Sensors│ ─────────────────────────────────────────▶│   MQTT Broker    │
+│  (Firmware)     │◀────────────subscribe `irrigation/control`└──────────────────┘
+└─────────────────┘                       
+                                ├──▶ Node-RED (subscribe `irrigation/sensors`)
+                                │      ├──▶ MongoDB
+                                │      └──▶ UI Dashboard
+                                │
+                                └──▶ ML Backend (subscribe `irrigation/sensors`)
+                                    └──▶ publish `irrigation/alert`
 ```
 
 ### Các thành phần chính:
@@ -39,10 +36,11 @@ Hệ thống tưới cây tự động thông minh sử dụng IoT và Machine L
 2. **Backend ML (Python)** - Phát hiện lỗi cảm biến.
    - 3 mô hình LSTM (air, soil, water).
    - Phân tích chuỗi thời gian 30 mẫu.
+   - Subscribe trực tiếp topic `irrigation/sensors` từ MQTT Broker.
    - Gửi cảnh báo qua MQTT.
 
 3. **Node-RED** - Trung tâm xử lý và giao diện.
-   - Nhận dữ liệu từ ESP32.
+   - Subscribe dữ liệu cảm biến từ topic `irrigation/sensors`.
    - Lưu trữ vào MongoDB.
    - Dashboard điều khiển và giám sát.
    - Gửi thông báo qua email và push notification.
